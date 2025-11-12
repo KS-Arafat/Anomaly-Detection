@@ -1,1 +1,6 @@
 # Group 02: Project Update Week 07
+# Rakibul Hasan Ridoy 1731339042
+This week, my primary focus was on advancing the model development phase of our IoT-based anomaly detection project. I successfully implemented and fine-tuned two core models — the Autoencoder (AE) and the One-Class Support Vector Machine (OCSVM) — using the TON-IoT dataset.
+For the Autoencoder, I experimented with different neural network architectures by varying the number of layers, neurons, and activation functions to find the optimal balance between reconstruction error and model complexity. The model is currently being evaluated based on the reconstruction error threshold, which determines whether a network traffic instance is normal or anomalous.
+In parallel, I developed the One-Class SVM model and tested multiple kernel functions (RBF and linear) along with the ν (nu) hyperparameter to define a clear decision boundary around normal traffic patterns.
+Both models are being analysed to identify their individual strengths and weaknesses. The insights from this evaluation will help in integrating them into a hybrid anomaly detection system, capable of detecting zero-day attacks and securing IoT environments even after their end-of-life (EOL) phase.
