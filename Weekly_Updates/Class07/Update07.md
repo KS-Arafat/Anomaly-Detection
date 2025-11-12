@@ -6,7 +6,7 @@ In parallel, I developed the One-Class SVM model and tested multiple kernel func
 Both models are being analysed to identify their individual strengths and weaknesses. The insights from this evaluation will help in integrating them into a hybrid anomaly detection system, capable of detecting zero-day attacks and securing IoT environments even after their end-of-life (EOL) phase.
 
 
-**Khondokar Sajid – 2211954042**
+# Khondokar Sajid – 2211954042
 
 - Implemented **Isolation Forest**, **DBSCAN**, and **LOF** models on the **NSL-KDD** dataset for IoT intrusion detection.  
 - Preprocessed data by **label encoding**, **standard scaling**, and **stratified train-test splitting**.  
