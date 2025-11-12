@@ -19,3 +19,9 @@ Both models are being analysed to identify their individual strengths and weakne
 # Kazi Safin Arafat - 2211778642
 
 I have implemented Base models using NSL-KDD dataset. Models are trained on numeric attributes and visualized using pie charts. I use RobustScaler to handle the outliers and normalized the dataset. Models include Logistic regression, linear SVM, Decision Tree, KNN, Naïve Bayes. Models are evaluated with metrics like accuracy, precision, recall and confusion matrix. I have use model predict on both test and train data for better understanding.
+
+
+##MOUSHUMI AKTER-2021983642
+This week, I focused on integrating the results from the One-Class SVM.
+The main objective of this week was to compare performance metrics (accuracy, precision, recall, F1-score) among the models and analyze their behavior on normal vs. attack traffic in the TON_IoT dataset.
+To achieve this, I implemented a unified evaluation script that loads preprocessed data, trains each model, and computes the key metrics. I also began initial work toward model stacking, where outputs from unsupervised models will serve as input features for a simple supervised classifier (like Logistic Regression) to enhance detection accuracy.
