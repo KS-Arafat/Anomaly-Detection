@@ -4,3 +4,13 @@ This week, my primary focus was on advancing the model development phase of our 
 For the Autoencoder, I experimented with different neural network architectures by varying the number of layers, neurons, and activation functions to find the optimal balance between reconstruction error and model complexity. The model is currently being evaluated based on the reconstruction error threshold, which determines whether a network traffic instance is normal or anomalous.
 In parallel, I developed the One-Class SVM model and tested multiple kernel functions (RBF and linear) along with the ν (nu) hyperparameter to define a clear decision boundary around normal traffic patterns.
 Both models are being analysed to identify their individual strengths and weaknesses. The insights from this evaluation will help in integrating them into a hybrid anomaly detection system, capable of detecting zero-day attacks and securing IoT environments even after their end-of-life (EOL) phase.
+
+
+# Khondokar Sajid 2211954042
+•	Implemented Isolation Forest, DBSCAN, and LOF models on the NSL-KDD dataset for IoT intrusion detection.
+•	Preprocessed data by label encoding, standard scaling, and stratified train-test splitting.
+•	Visualized anomaly results using PCA(2D) plots highlighting detected outliers.
+•	Calculated key metrics — AUC, Precision, Recall, F1-score, and runtime for fair model comparison.
+•	Found that Isolation Forest achieved the best balance of accuracy and speed for IoT devices.
+
+
