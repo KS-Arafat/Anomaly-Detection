@@ -5,7 +5,7 @@ import json
 import time
 import random
 
-API_URL = "http://localhost:5000/login"
+API_URL = "http://pi.local:5000/login"
 Dataset_PATH = "./dataset/TON_IoT.csv"
 
 
@@ -32,7 +32,7 @@ def simulate_normal_traffic(df, min_delay=0.5, max_delay=2.0):
         row_series = df.iloc[i]
         row_dict = row_series.to_dict()
 
-        print(f"\nSending row {i+1}/{len(df)} ...")
+        print(f"\nSending row {i+1}/{len(df)} ...") //sending the row to api 
 
         response = send_row_to_api(row_dict)
         pred = response.get("prediction")  
@@ -42,6 +42,7 @@ def simulate_normal_traffic(df, min_delay=0.5, max_delay=2.0):
         true_labels.append(true)
 
         print(f"\tModel predicted: {pred} | True label: {true}")
+        print(f"\tResponse: {response}")
 
         delay = random.uniform(min_delay, max_delay)
         print(f"\tPausing for {delay:.2f} seconds...\n")
@@ -82,6 +83,6 @@ if __name__ == "__main__":
     print("\nFUZZING SUMMARY")
     print(clean_df)
     print(f"\n🎯 Prediction Accuracy: {accuracy:.2f}%")
-
+ 
     clean_df.to_csv("fuzzing_results.csv", index=False)
     print("Saved results to fuzzing_results.csv")
