@@ -4,10 +4,12 @@ This project focuses on creating NIDS model using maching learning and deep lear
 
 ## Table of Content
 
-- [Introduction](#introduction)
-- [Datasets](#datasets)
-- [Project Structure](#project-structure)
-- [Contributors](#contributors)
+- [Machine Learning Approach to Network Intrusion Detection for IoT Devices](#machine-learning-approach-to-network-intrusion-detection-for-iot-devices)
+  - [Table of Content](#table-of-content)
+  - [Introduction](#introduction)
+  - [Datasets](#datasets)
+  - [Project Structure](#project-structure)
+  - [Contributors](#contributors)
 
 ## Introduction
 
@@ -40,9 +42,13 @@ Project
 │
 ├── RESULTS [Final Outcome]
 │
-└── Weekly_Updates  [Contains Weekly Updates]
+└── Others
     │
-    └──Class(01,02,03,...)
+    ├── Weekly_Updates  [Contains Weekly Updates]
+    │   │
+    │   └──Class(01,02,03,...)
+    │
+    └── Presentations, Videos, Proposals, Reports, Misc.
 ```
 
 ## Contributors
