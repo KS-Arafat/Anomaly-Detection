@@ -93,7 +93,7 @@ To attack/test our endpoint, we used our windows host machine powershell
 
 ```bash
 git clone https://github.com/KS-Arafat/Anomaly-Detection/tree/main
-cd .\codeB\Endpoint-Fuzzing\
+cd .\Anomaly-Detection\codeB\Endpoint-Fuzzing\
 python -m venv .venv
 ./.venv/scripts/activate.ps1
 python -m ensurepip --upgrade
