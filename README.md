@@ -9,6 +9,10 @@ This project focuses on creating NIDS model using maching learning and deep lear
   - [Introduction](#introduction)
   - [Datasets](#datasets)
   - [Project Structure](#project-structure)
+  - [How to Run](#how-to-run)
+    - [Hardware](#hardware)
+    - [Software](#software)
+  - [Fuzzing](#fuzzing)
   - [Contributors](#contributors)
 
 ## Introduction
@@ -50,6 +54,59 @@ Project
     │
     └── Presentations, Videos, Proposals, Reports, Misc.
 ```
+
+## How to Run
+
+### Hardware
+
+Our project is compatible with almost all Raspberry PI models. For our case we are using [Raspberry PI 4B](https://store.roboticsbd.com/raspberry-pi/1076-76-raspberry-pi-4-robotics-bangladesh.html).
+
+### Software
+
+First ssh into Pi with/out GUI. We are using Raspberry PI OS Lite x64. After ssh into it, make sure it has internet access for modules to install.
+
+```bash
+sudo apt update
+curl -O https://raw.githubusercontent.com/KS-Arafat/Anomaly-Detection/refs/heads/main/codeB/setup.sh
+chmod +x ./setup.sh
+sudo ./setup.sh
+python ./main.py
+```
+
+This will get the setup srcipt and install all the necessary packages for our project.
+
+This will also create Venv for our python environment.
+
+If the script doesn't work first time, then
+
+```bash
+source ~/.barhrc
+sudo ./setup.sh
+python ./main.py
+```
+
+Hopefully it will work
+
+## Fuzzing
+
+To attack/test our endpoint, we used our windows host machine powershell
+
+```bash
+git clone https://github.com/KS-Arafat/Anomaly-Detection/tree/main
+cd .\codeB\Endpoint-Fuzzing\
+python -m venv .venv
+./.venv/scripts/activate.ps1
+python -m ensurepip --upgrade
+pip3 install -r ./requirements.txt
+```
+
+After we can test our endpoint with desired amount of attacks,
+
+```bash
+python .\fuzzing.py [Number of Attacks]
+```
+
+And Done.
 
 ## Contributors
 
