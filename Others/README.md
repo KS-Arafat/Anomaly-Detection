@@ -1,4 +1,4 @@
-# Others — README
+# Others
 
 ## Overview
 
