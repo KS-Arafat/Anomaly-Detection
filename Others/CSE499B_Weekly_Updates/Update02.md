@@ -29,6 +29,9 @@ I worked on the dataset preparation and exploratory data analysis phase. My resp
 
 ### Khondokar Sajid (2211954042)
 
+I focused on the research and methodological aspects of the project, particularly reliability and calibration of ML-based NIDS. I reviewed key concepts such as Expected Calibration Error (ECE), Brier Score, temperature scaling, and isotonic regression, and helped design the evaluation framework for cross-dataset analysis.
+Also, I contributed to the initial implementation of calibration evaluation by writing basic code for computing ECE and Brier Score, ensuring that both performance and probability reliability can be properly measured in our experiments.
+
 ### Moushumi Akter Mow (2021983642)
 
 ### Rakibul Hasan Ridoy (1731339042)
