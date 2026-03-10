@@ -15,107 +15,128 @@ Group 02
 |   Moushumi Akter Mow  |   | 2021983642 |
 |   Rakibul Hasan Ridoy |   | 1731339042 |
 
-Summary
+## Summary
 
-During this reporting period, our team moved from dataset exploration to the implementation stage of the experimental pipeline. We worked with the CICIDS2017 dataset, performing preprocessing steps such as cleaning duplicate records, handling missing values, transforming labels into binary format (Benign vs Attack), and applying feature scaling to prepare the data for machine learning models.
+During this reporting period, our team transitioned from dataset exploration to the **implementation stage of the experimental pipeline**.
 
-After preprocessing, the dataset was divided into training and testing subsets. A baseline Random Forest classifier was implemented to establish initial intrusion detection performance. In addition, we started implementing reliability evaluation metrics such as Expected Calibration Error (ECE) and Brier Score to measure how well the model’s predicted probabilities reflect actual prediction correctness.
+Key activities completed in this phase include:
 
-This phase represents the transition from theoretical planning to practical experimentation and establishes the foundation for reliability evaluation in the later stages of the project.
+- Working with the **CICIDS2017 dataset** to prepare data for machine learning experiments.
+- Performing preprocessing steps such as:
+  - Removing duplicate records
+  - Handling missing values
+  - Converting labels to binary format (**Benign vs Attack**)
+  - Applying **feature normalization and scaling**
 
-Contributions
-Khondokar Sajid (2211954042)
+- Splitting the dataset into **training and testing subsets** for model development.
 
-I focused on the methodological and evaluation aspects of the project. I implemented initial code for calculating calibration metrics such as Expected Calibration Error (ECE) and Brier Score. I also helped structure the experimental evaluation pipeline to ensure that both classification performance and reliability metrics are properly measured.
+- Implementing a **baseline Random Forest classifier** to establish initial intrusion detection performance.
 
-Kazi Safin Arafat (2211778642)
+- Developing initial reliability evaluation tools by implementing calibration metrics:
+  - **Expected Calibration Error (ECE)**
+  - **Brier Score**
 
-I worked on dataset preparation and preprocessing tasks. This included handling missing values, verifying dataset consistency, and applying feature scaling techniques. I also assisted in preparing the dataset for baseline model training and conducting exploratory data analysis.
+These steps mark the transition from **theoretical planning to practical experimentation**, providing the foundation for evaluating reliability and calibration of ML-based NIDS under cross-dataset distribution shift.
+---
 
-Moushumi Akter Mow (2021983642)
+## Contributions
 
-I assisted in reviewing additional research materials related to intrusion detection architectures and calibration techniques. I contributed to summarizing relevant findings from the literature and supporting discussions on how these methods relate to our project framework.
+### Khondokar Sajid (2211954042)
 
-Rakibul Hasan Ridoy (1731339042)
+- Focused on the **methodological and evaluation aspects** of the project.
+- Implemented initial code for calibration metrics:
+  - **Expected Calibration Error (ECE)**
+  - **Brier Score**
+- Helped design the **experimental evaluation pipeline** to ensure both:
+  - classification performance
+  - probability reliability  
+  are properly measured.
 
-I supported the literature review process by analyzing research papers related to model reliability and uncertainty in intrusion detection systems. I also helped organize references and contributed to documenting the experimental planning process.
+---
 
-Completed Tasks
+### Kazi Safin Arafat (2211778642)
 
-Literature review on reliability and probabilistic calibration in ML-based intrusion detection systems
+- Worked on **dataset preparation and preprocessing**.
+- Performed tasks including:
+  - handling missing values
+  - verifying dataset consistency
+  - applying **feature scaling**
+- Assisted with **exploratory data analysis (EDA)** and dataset preparation for model training.
 
-Identification of research gap related to calibration under cross-dataset distribution shift
+---
 
-Selection of benchmark dataset for experimentation (CICIDS2017)
+### Moushumi Akter Mow (2021983642)
 
-Dataset Preprocessing
+- Assisted in reviewing research materials related to:
+  - intrusion detection architectures
+  - calibration techniques
+- Helped summarize relevant findings from the literature and supported discussions on integrating these techniques into the project framework.
 
-Removal of duplicate records
+---
 
-Handling missing values
+### Rakibul Hasan Ridoy (1731339042)
 
-Label transformation (Benign vs Attack)
+- Supported the literature review on:
+  - model reliability
+  - uncertainty handling in IDS
+- Assisted in organizing references and documenting experimental planning.
 
-Exploratory Data Analysis (EDA)
+---
 
-Feature distribution inspection
+## Completed Tasks
 
-Correlation analysis among network traffic features
+- Literature review on **reliability and probabilistic calibration** in ML-based NIDS
+- Identification of **research gap** related to calibration under cross-dataset distribution shift
+- Selection of benchmark dataset (**CICIDS2017**)
 
-Visualization of class imbalance
+### Dataset Preprocessing
+- Removal of duplicate records
+- Handling missing values
+- Label transformation (**Benign vs Attack**)
 
-Feature Preparation
+### Exploratory Data Analysis (EDA)
+- Feature distribution inspection
+- Correlation analysis among network traffic features
+- Visualization of class imbalance
 
-Normalization and scaling of numerical features
+### Feature Preparation
+- Normalization and scaling of numerical features
+- Preparation of feature matrices for machine learning models
 
-Preparation of feature matrices for machine learning models
+### Model Implementation
+- Dataset splitting into **training and testing subsets**
+- Implementation of a **baseline Random Forest classifier**
+- Verification of model prediction outputs and probability scores
 
-Model Implementation
+### Calibration Evaluation
+- Initial implementation of calibration metrics:
+  - **Expected Calibration Error (ECE)**
+  - **Brier Score**
 
-Dataset splitting into training and testing subsets
+---
 
-Implementation of a baseline Random Forest classifier
+## Tasks in Progress
 
-Verification of model prediction outputs and probability scores
+- Training baseline machine learning models
 
-Calibration Evaluation
+### Performance Evaluation
+- Generating classification metrics:
+  - Accuracy
+  - Precision
+  - Recall
+  - F1-score
 
-Initial implementation of calibration metrics:
+- Producing **reliability diagrams** to visualize calibration performance
+- Testing calibration metric implementation
 
-Expected Calibration Error (ECE)
+---
 
-Brier Score
+## Future Tasks
 
-Tasks in Progress
-
-Training baseline machine learning models
-
-Generating classification performance metrics:
-
-Accuracy
-
-Precision
-
-Recall
-
-F1-score
-
-Producing reliability diagrams to visualize calibration performance
-
-Testing calibration metric implementation
-
-Future Tasks
-
-Conduct cross-dataset experiments
-
-Apply post-hoc calibration methods:
-
-Temperature Scaling
-
-Isotonic Regression
-
-Implement entropy-based uncertainty detection mechanism
-
-Evaluate selective accuracy and UNKNOWN prediction behavior
-
-Prepare final experimental analysis and report
+- Conduct **cross-dataset experiments**
+- Apply post-hoc calibration methods:
+  - Temperature Scaling
+  - Isotonic Regression
+- Implement **entropy-based uncertainty detection mechanism**
+- Evaluate selective accuracy and **UNKNOWN prediction behavior**
+- Prepare final experimental analysis and report
