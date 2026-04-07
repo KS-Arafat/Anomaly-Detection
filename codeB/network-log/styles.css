@@ -1,0 +1,145 @@
+:root {
+	--bg: #0f1724;
+	--card: #111827;
+	--muted: #9ca3af;
+	--green: #10b981;
+	--amber: #f59e0b;
+	--red: #ef4444;
+	--glass: rgba(255, 255, 255, 0.03);
+}
+html,
+body {
+	height: 100%;
+	margin: 0;
+	font-family:
+		Inter,
+		system-ui,
+		Segoe UI,
+		Roboto,
+		"Helvetica Neue",
+		Arial;
+	color: #e6eef8;
+	background: linear-gradient(180deg, var(--bg), #071023);
+}
+.wrap {
+	max-width: 1100px;
+	margin: 28px auto;
+	padding: 20px;
+}
+header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+h1 {
+	margin: 0;
+	font-size: 20px;
+}
+.controls {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+.panel {
+	background: var(--card);
+	padding: 14px;
+	border-radius: 10px;
+	box-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
+}
+.stats {
+	display: flex;
+	gap: 10px;
+	margin-top: 14px;
+}
+.stat {
+	flex: 1;
+	padding: 10px;
+	border-radius: 8px;
+	background: linear-gradient(180deg, var(--glass), transparent);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.badge {
+	display: inline-block;
+	padding: 6px 10px;
+	border-radius: 999px;
+	color: #061523;
+	font-weight: 700;
+}
+.badge.normal {
+	background: var(--green);
+}
+.badge.warning {
+	background: var(--amber);
+}
+.badge.danger {
+	background: var(--red);
+}
+.log-list {
+	margin-top: 16px;
+	border-collapse: collapse;
+	width: 100%;
+}
+.log-list thead th {
+	font-weight: 600;
+	text-align: left;
+	padding: 10px 8px;
+	color: var(--muted);
+	font-size: 13px;
+}
+.log-list tbody td {
+	padding: 10px 8px;
+	border-top: 1px solid rgba(255, 255, 255, 0.03);
+	vertical-align: middle;
+}
+.row-normal {
+	background: transparent;
+}
+.row-warning {
+	background: linear-gradient(90deg, rgba(245, 158, 11, 0.06), transparent);
+}
+.row-danger {
+	background: linear-gradient(90deg, rgba(239, 68, 68, 0.06), transparent);
+}
+.small {
+	font-size: 12px;
+	color: var(--muted);
+}
+.tools {
+	display: flex;
+	gap: 8px;
+}
+button,
+select {
+	background: #0b1220;
+	border: 1px solid rgba(255, 255, 255, 0.04);
+	color: #e6eef8;
+	padding: 8px 10px;
+	border-radius: 8px;
+}
+button.secondary {
+	background: transparent;
+	border: 1px dashed rgba(255, 255, 255, 0.03);
+	color: var(--muted);
+}
+.flex {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+footer {
+	margin-top: 18px;
+	color: var(--muted);
+	font-size: 12px;
+	text-align: center;
+}
+@media (max-width: 720px) {
+	.stats {
+		flex-direction: column;
+	}
+	.controls {
+		flex-wrap: wrap;
+	}
+}
