@@ -22,6 +22,11 @@
 
 ### Khondokar Sajid (2211954042)
 
+I worked on final system model design with different approaches and selected ECAFN .It is the full fusion engine that combines phishing probability (pp), network anomaly score (ap), and the 12-dim context using ReliabilityMLP + CrossAttentionFusion + DST .
+1.CATF -- Context-Aware Threat Fusion
+2.CGF -- CrossGated Fusion (or CrossAttentionFusion)
+3.ECAFN -- Evidence Context Aware Fusion Network
+
 ---
 
 ### Kazi Safi  Arafat (2211778642)
