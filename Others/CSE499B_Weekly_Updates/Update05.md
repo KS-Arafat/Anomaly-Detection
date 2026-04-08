@@ -37,7 +37,7 @@ I contributed to the development of a network logging system by designing and im
 
 ### Moushumi Akter Mow (2021983642)
 
----
+  I Contributed to reviewing and improving the feature processing pipeline, including the generation and handling of embeddings from the model. Actively assisted in analyzing anomaly detection outputs, ensuring a clear and reliable distinction between known and unknown attack samples. Verified the correctness and consistency of input feature scaling and feature selection processes to maintain data quality and model performance. Additionally, supported debugging efforts by identifying and helping resolve issues during implementation, and participated in thorough result checking and validation to ensure the overall reliability and accuracy of the system.
 
 ### Rakibul Hasan Ridoy (1731339042)
 
