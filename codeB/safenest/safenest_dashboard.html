@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeNest Guard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #080c12;
+    --surface:  #0d1420;
+    --border:   #1a2535;
+    --safe:     #00e5a0;
+    --caution:  #f5a623;
+    --alert:    #ff3b5c;
+    --review:   #7b8fa6;
+    --text:     #c8d8e8;
+    --dim:      #4a6070;
+    --safe-bg:  rgba(0,229,160,.07);
+    --caution-bg: rgba(245,166,35,.07);
+    --alert-bg: rgba(255,59,92,.07);
+    --review-bg:rgba(123,143,166,.07);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text);
+    font-family: 'IBM Plex Mono', monospace; overflow-x: hidden; }
+
+  /* ── GRID NOISE BACKGROUND ── */
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .shell { position: relative; z-index: 1; min-height: 100vh;
+    display: flex; flex-direction: column; }
+
+  /* ── HEADER ── */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px; border-bottom: 1px solid var(--border);
+    background: rgba(13,20,32,.95); backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--safe), #00b87a);
+    display: grid; place-items: center; font-size: 18px;
+    box-shadow: 0 0 20px rgba(0,229,160,.3);
+  }
+  .logo h1 { font-family: 'Syne', sans-serif; font-size: 18px;
+    font-weight: 800; letter-spacing: -.3px; color: #fff; }
+  .logo span { font-size: 11px; color: var(--dim); display: block;
+    font-family: 'IBM Plex Mono', monospace; letter-spacing: .5px; }
+  .header-right { display: flex; align-items: center; gap: 20px; }
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--safe); letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%;
+    background: var(--safe); animation: pulse 1.5s infinite; }
+  @keyframes pulse {
+    0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(0,229,160,.4); }
+    50% { opacity:.7; box-shadow: 0 0 0 6px rgba(0,229,160,0); }
+  }
+  #clock { font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+  #api-status { font-size: 11px; padding: 3px 10px; border-radius: 4px;
+    border: 1px solid; letter-spacing: .5px; text-transform: uppercase; }
+  #api-status.ok  { color: var(--safe);   border-color: var(--safe);   background: var(--safe-bg); }
+  #api-status.err { color: var(--alert);  border-color: var(--alert);  background: var(--alert-bg); }
+
+  /* ── BODY LAYOUT ── */
+  .body { display: flex; flex: 1; gap: 0; }
+  .sidebar { width: 260px; flex-shrink: 0; border-right: 1px solid var(--border);
+    padding: 24px 20px; display: flex; flex-direction: column; gap: 28px;
+    background: rgba(13,20,32,.5); }
+  .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+
+  /* ── SIDEBAR COUNTERS ── */
+  .sidebar-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--dim); margin-bottom: 14px; }
+  .counter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .counter-card {
+    border-radius: 10px; padding: 14px 12px; border: 1px solid var(--border);
+    background: var(--surface); position: relative; overflow: hidden;
+    transition: transform .15s, border-color .15s;
+    cursor: default;
+  }
+  .counter-card:hover { transform: translateY(-2px); }
+  .counter-card.safe    { border-color: rgba(0,229,160,.25); background: var(--safe-bg); }
+  .counter-card.caution { border-color: rgba(245,166,35,.25); background: var(--caution-bg); }
+  .counter-card.alert   { border-color: rgba(255,59,92,.25);  background: var(--alert-bg); }
+  .counter-card.review  { border-color: rgba(123,143,166,.25);background: var(--review-bg); }
+  .counter-card .n {
+    font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800;
+    line-height: 1; margin-bottom: 4px;
+  }
+  .counter-card.safe    .n { color: var(--safe); }
+  .counter-card.caution .n { color: var(--caution); }
+  .counter-card.alert   .n { color: var(--alert); }
+  .counter-card.review  .n { color: var(--review); }
+  .counter-card .lbl { font-size: 10px; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--dim); }
+  .counter-card .glow {
+    position: absolute; right: -10px; bottom: -10px;
+    width: 50px; height: 50px; border-radius: 50%; filter: blur(16px); opacity: .3;
+  }
+  .safe    .glow { background: var(--safe); }
+  .caution .glow { background: var(--caution); }
+  .alert   .glow { background: var(--alert); }
+  .review  .glow { background: var(--review); }
+
+  /* ── SIDEBAR STATS ── */
+  .stat-row { display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .stat-row:last-child { border: none; }
+  .stat-row .k { color: var(--dim); }
+  .stat-row .v { color: var(--text); font-weight: 500; }
+
+  /* ── MAIN AREA ── */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 15px;
+    font-weight: 700; color: #fff; letter-spacing: -.2px; }
+  .section-count { font-size: 11px; color: var(--dim);
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 2px 10px; border-radius: 20px; }
+
+  /* ── RESULT CARD ── */
+  .results-list { display: flex; flex-direction: column; gap: 10px; }
+  .result-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px;
+    border-left: 3px solid var(--border);
+    animation: slideIn .3s ease both;
+    transition: border-color .2s, background .2s;
+    position: relative; overflow: hidden;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .result-card:hover { border-color: var(--dim); }
+  .result-card.SAFE    { border-left-color: var(--safe);    background: var(--safe-bg); }
+  .result-card.CAUTION { border-left-color: var(--caution); background: var(--caution-bg); }
+  .result-card.ALERT   { border-left-color: var(--alert);   background: var(--alert-bg); }
+  .result-card.REVIEW  { border-left-color: var(--review);  background: var(--review-bg); }
+
+  .result-card.ALERT::before {
+    content: ''; position: absolute; inset: 0; border-radius: 12px;
+    background: linear-gradient(90deg, rgba(255,59,92,.04), transparent);
+    pointer-events: none;
+  }
+
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 12px; margin-bottom: 10px; }
+  .card-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+  .decision-badge {
+    display: flex; align-items: center; gap: 5px; padding: 3px 10px;
+    border-radius: 5px; font-size: 11px; font-weight: 600;
+    letter-spacing: .8px; text-transform: uppercase; white-space: nowrap;
+    border: 1px solid currentColor;
+  }
+  .SAFE    .decision-badge { color: var(--safe);    background: rgba(0,229,160,.1); }
+  .CAUTION .decision-badge { color: var(--caution); background: rgba(245,166,35,.1); }
+  .ALERT   .decision-badge { color: var(--alert);   background: rgba(255,59,92,.1); }
+  .REVIEW  .decision-badge { color: var(--review);  background: rgba(123,143,166,.1); }
+
+  .device-info { min-width: 0; }
+  .device-name { font-size: 13px; font-weight: 500; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .device-type { font-size: 10px; color: var(--dim); letter-spacing: .5px;
+    text-transform: uppercase; margin-top: 1px; }
+
+  .card-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .severity-ring {
+    position: relative; width: 42px; height: 42px;
+  }
+  .severity-ring svg { width: 42px; height: 42px; transform: rotate(-90deg); }
+  .severity-ring .track { fill: none; stroke: var(--border); stroke-width: 3; }
+  .severity-ring .fill  { fill: none; stroke-width: 3;
+    stroke-linecap: round; transition: stroke-dashoffset .5s ease; }
+  .SAFE    .fill { stroke: var(--safe); }
+  .CAUTION .fill { stroke: var(--caution); }
+  .ALERT   .fill { stroke: var(--alert); }
+  .REVIEW  .fill { stroke: var(--review); }
+  .severity-pct { position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: 10px; font-weight: 600; }
+
+  .timestamp { font-size: 10px; color: var(--dim); white-space: nowrap; }
+
+  /* ── ALERT MESSAGE ── */
+  .card-message { margin-bottom: 10px; }
+  .msg-en { font-size: 12px; color: var(--text); line-height: 1.5; margin-bottom: 3px; }
+  .msg-bn { font-size: 13px; color: var(--text); opacity: .8; line-height: 1.6; }
+
+  /* ── SCORE BAR ROW ── */
+  .scores-row {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;
+  }
+  .score-chip {
+    display: flex; align-items: center; gap: 4px;
+    background: rgba(255,255,255,.04); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px 7px; font-size: 10px;
+  }
+  .score-chip .sk { color: var(--dim); }
+  .score-chip .sv { color: var(--text); font-weight: 500; }
+  .score-chip.hi-safe    .sv { color: var(--safe); }
+  .score-chip.hi-alert   .sv { color: var(--alert); }
+  .score-chip.hi-caution .sv { color: var(--caution); }
+
+  .meta-row { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
+  .meta-chip { font-size: 10px; color: var(--dim); display: flex;
+    align-items: center; gap: 3px; }
+  .meta-chip .dot { width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor; display: inline-block; }
+  .meta-chip.zd   { color: var(--alert); }
+  .meta-chip.tt   { color: var(--safe); }
+  .meta-chip.lat  { color: var(--dim); }
+
+  /* ── SCENARIO SECTION HEADER ── */
+  .scenario-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 8px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    margin-bottom: 8px; margin-top: 20px;
+    font-size: 12px;
+  }
+  .scenario-header:first-child { margin-top: 0; }
+  .scenario-num { font-family: 'Syne', sans-serif; font-size: 11px;
+    font-weight: 800; color: var(--dim); width: 20px; }
+  .scenario-desc { flex: 1; color: var(--text); font-size: 12px; }
+  .scenario-expect { font-size: 10px; color: var(--dim); }
+  .pass-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; letter-spacing: .5px; }
+  .pass-badge.pass { background: rgba(0,229,160,.15); color: var(--safe); }
+  .pass-badge.note { background: rgba(245,166,35,.15); color: var(--caution); }
+
+  /* ── RANDOM SECTION ── */
+  .random-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px; }
+  .random-table th { text-align: left; padding: 8px 10px; color: var(--dim);
+    font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+    border-bottom: 1px solid var(--border); font-weight: 400; }
+  .random-table td { padding: 7px 10px; border-bottom: 1px solid rgba(26,37,53,.5);
+    vertical-align: middle; }
+  .random-table tr:last-child td { border-bottom: none; }
+  .random-table tr { animation: slideIn .2s ease both; }
+  .random-table tr:hover td { background: rgba(255,255,255,.02); }
+  .tbl-badge { display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 4px; font-size: 10px;
+    font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+  .tbl-SAFE    { color: var(--safe);    background: rgba(0,229,160,.1); }
+  .tbl-CAUTION { color: var(--caution); background: rgba(245,166,35,.1); }
+  .tbl-ALERT   { color: var(--alert);   background: rgba(255,59,92,.1); }
+  .tbl-REVIEW  { color: var(--review);  background: rgba(123,143,166,.1); }
+  .tbl-src-attack { color: var(--alert); }
+  .tbl-src-benign { color: var(--safe); }
+
+  /* ── LATENCY SPARKLINE ── */
+  .latency-bar {
+    display: flex; gap: 2px; align-items: flex-end; height: 24px;
+  }
+  .lat-bar { width: 6px; border-radius: 2px 2px 0 0;
+    background: var(--safe); opacity: .7; transition: height .3s; }
+
+  /* ── EMPTY STATE ── */
+  .empty { text-align: center; padding: 60px 20px; color: var(--dim); }
+  .empty .icon { font-size: 40px; margin-bottom: 12px; opacity: .4; }
+  .empty p { font-size: 13px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── TAB NAV ── */
+  .tab-nav { display: flex; gap: 4px; margin-bottom: 20px; }
+  .tab-btn { padding: 6px 16px; border-radius: 6px; font-size: 12px;
+    border: 1px solid var(--border); background: none; color: var(--dim);
+    cursor: pointer; font-family: 'IBM Plex Mono', monospace;
+    transition: all .15s; letter-spacing: .3px; }
+  .tab-btn.active { background: var(--surface); color: var(--text);
+    border-color: var(--text); }
+  .tab-btn:hover:not(.active) { color: var(--text); border-color: var(--dim); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── CONNECTION OVERLAY ── */
+  #connect-overlay {
+    position: fixed; inset: 0; background: rgba(8,12,18,.95);
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; z-index: 200; gap: 16px;
+  }
+  #connect-overlay h2 { font-family: 'Syne',sans-serif; font-size: 20px;
+    font-weight: 800; color: #fff; }
+  #connect-overlay p { font-size: 12px; color: var(--dim); max-width: 340px;
+    text-align: center; line-height: 1.7; }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border);
+    border-top-color: var(--safe); border-radius: 50%;
+    animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .url-input-row { display: flex; gap: 8px; margin-top: 8px; }
+  .url-input { background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 14px; border-radius: 6px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    width: 280px; outline: none; }
+  .url-input:focus { border-color: var(--safe); }
+  .url-btn { background: var(--safe); color: #000; border: none;
+    padding: 8px 16px; border-radius: 6px; font-family: 'IBM Plex Mono',monospace;
+    font-size: 12px; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div id="connect-overlay">
+  <div class="logo-icon">🛡️</div>
+  <h2>SafeNest Guard</h2>
+  <p>Connecting to API server...<br>Make sure <code>safenest_api.py</code> is running.</p>
+  <div class="spinner"></div>
+  <div class="url-input-row">
+    <input class="url-input" id="api-url-input" value="http://localhost:5000" placeholder="http://localhost:5000">
+    <button class="url-btn" onclick="tryConnect()">Connect</button>
+  </div>
+  <p id="connect-error" style="color:var(--alert);display:none;margin-top:4px;"></p>
+</div>
+
+<div class="shell">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🛡️</div>
+      <div>
+        <h1>SafeNest Guard</h1>
+        <span>Context-Aware IoT Security · CSE 499B · NSU</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+      <div id="clock">--:--:--</div>
+      <div id="api-status" class="ok">API OK</div>
+    </div>
+  </header>
+
+  <div class="body">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div>
+        <div class="sidebar-label">Decision Counts</div>
+        <div class="counter-grid">
+          <div class="counter-card safe">
+            <div class="n" id="cnt-safe">0</div>
+            <div class="lbl">Safe</div>
+            <div class="glow"></div>
+          </div>
+          <div class="counter-card caution">
+            <div class="n" id="cnt-caution">0</div>
+            <div class="lbl">Caution</div>
+            <div class="glow"></div>
+          </div>
+          <div class="counter-card alert">
+            <div class="n" id="cnt-alert">0</div>
+            <div class="lbl">Alert</div>
+            <div class="glow"></div>
+          </div>
+          <div class="counter-card review">
+            <div class="n" id="cnt-review">0</div>
+            <div class="lbl">Review</div>
+            <div class="glow"></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sidebar-label">Performance</div>
+        <div class="stat-row"><span class="k">Total flows</span><span class="v" id="stat-total">0</span></div>
+        <div class="stat-row"><span class="k">Avg latency</span><span class="v" id="stat-avg">—</span></div>
+        <div class="stat-row"><span class="k">Min latency</span><span class="v" id="stat-min">—</span></div>
+        <div class="stat-row"><span class="k">Max latency</span><span class="v" id="stat-max">—</span></div>
+        <div class="stat-row"><span class="k">Zero-day flags</span><span class="v" id="stat-zd" style="color:var(--alert)">0</span></div>
+        <div class="stat-row"><span class="k">TRAV trusted</span><span class="v" id="stat-tt" style="color:var(--safe)">0</span></div>
+      </div>
+
+      <div>
+        <div class="sidebar-label">Latency Trend</div>
+        <div class="latency-bar" id="latency-sparkline"></div>
+        <div style="font-size:10px;color:var(--dim);margin-top:6px;">Last 20 requests</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('showcase')">Showcase</button>
+        <button class="tab-btn" onclick="switchTab('random')">Random Flows</button>
+        <button class="tab-btn" onclick="switchTab('stream')">Live Stream</button>
+      </div>
+
+      <!-- SHOWCASE TAB -->
+      <div id="tab-showcase" class="tab-content active">
+        <div class="section-header">
+          <span class="section-title">5 Showcase Scenarios</span>
+          <span class="section-count" id="showcase-count">0 results</span>
+        </div>
+        <div id="showcase-list">
+          <div class="empty"><div class="icon">📡</div>
+            <p>Run the test client to see results<br>
+            <code style="font-size:11px;color:var(--safe)">python safenest_test_client.py --showcase-only</code></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RANDOM TAB -->
+      <div id="tab-random" class="tab-content">
+        <div class="section-header">
+          <span class="section-title">Random Flow Sampling</span>
+          <span class="section-count" id="random-count">0 flows</span>
+        </div>
+        <div id="random-area">
+          <div class="empty"><div class="icon">🎲</div>
+            <p>Run the test client to see random flow results<br>
+            <code style="font-size:11px;color:var(--safe)">python safenest_test_client.py --random 20</code></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE STREAM TAB -->
+      <div id="tab-stream" class="tab-content">
+        <div class="section-header">
+          <span class="section-title">Live Prediction Stream</span>
+          <span class="section-count" id="stream-count">0 events</span>
+        </div>
+        <div id="stream-list" class="results-list">
+          <div class="empty"><div class="icon">📶</div>
+            <p>Predictions appear here in real-time as requests arrive</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+let API = 'http://localhost:5000';
+let stats = { total:0, safe:0, caution:0, alert:0, review:0,
+               latencies:[], zeroDays:0, travTrusted:0 };
+let showcaseResults = [];
+let randomResults   = [];
+let streamResults   = [];
+let connected = false;
+
+// ── ICONS ─────────────────────────────────────────────────────────────────
+const ICONS = { SAFE:'✅', CAUTION:'⚠️', ALERT:'🚨', REVIEW:'🔍' };
+
+// ── CLOCK ─────────────────────────────────────────────────────────────────
+setInterval(() => {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('en-GB');
+}, 1000);
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', b.textContent.toLowerCase().startsWith(name));
+  });
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ── CONNECTION ────────────────────────────────────────────────────────────
+async function tryConnect() {
+  const input = document.getElementById('api-url-input').value.trim();
+  API = input.replace(/\/$/, '');
+  document.getElementById('connect-error').style.display = 'none';
+  try {
+    const r = await fetch(API + '/health', {signal: AbortSignal.timeout(4000)});
+    const d = await r.json();
+    if (d.status === 'ok' || d.status === 'loading') {
+      connected = true;
+      document.getElementById('connect-overlay').style.display = 'none';
+      document.getElementById('api-status').textContent = 'API OK';
+      document.getElementById('api-status').className = 'ok';
+      startPolling();
+    }
+  } catch(e) {
+    document.getElementById('connect-error').textContent =
+      'Cannot connect. Is safenest_api.py running?';
+    document.getElementById('connect-error').style.display = 'block';
+  }
+}
+
+// Auto-try on load
+window.addEventListener('load', () => {
+  setTimeout(tryConnect, 800);
+});
+
+// ── POLLING — fetch /dashboard_data every 2s ──────────────────────────────
+function startPolling() {
+  poll();
+  setInterval(poll, 2000);
+}
+
+async function poll() {
+  try {
+    const r = await fetch(API + '/dashboard_data',
+      {signal: AbortSignal.timeout(3000)});
+    const d = await r.json();
+    updateDashboard(d);
+    document.getElementById('api-status').textContent = 'API OK';
+    document.getElementById('api-status').className = 'ok';
+  } catch(e) {
+    document.getElementById('api-status').textContent = 'OFFLINE';
+    document.getElementById('api-status').className = 'err';
+  }
+}
+
+// ── UPDATE DASHBOARD ──────────────────────────────────────────────────────
+function updateDashboard(data) {
+  // Sidebar counters
+  const c = data.counts || {};
+  document.getElementById('cnt-safe').textContent    = c.SAFE    || 0;
+  document.getElementById('cnt-caution').textContent = c.CAUTION || 0;
+  document.getElementById('cnt-alert').textContent   = c.ALERT   || 0;
+  document.getElementById('cnt-review').textContent  = c.REVIEW  || 0;
+
+  // Stats
+  const s = data.stats || {};
+  document.getElementById('stat-total').textContent =
+    s.total || 0;
+  document.getElementById('stat-avg').textContent =
+    s.avg_latency ? s.avg_latency.toFixed(1) + 'ms' : '—';
+  document.getElementById('stat-min').textContent =
+    s.min_latency ? s.min_latency.toFixed(1) + 'ms' : '—';
+  document.getElementById('stat-max').textContent =
+    s.max_latency ? s.max_latency.toFixed(1) + 'ms' : '—';
+  document.getElementById('stat-zd').textContent = s.zero_days  || 0;
+  document.getElementById('stat-tt').textContent = s.trav_trusted|| 0;
+
+  // Sparkline
+  renderSparkline(data.recent_latencies || []);
+
+  // Results
+  if ((data.showcase || []).length > 0) renderShowcase(data.showcase);
+  if ((data.random   || []).length > 0) renderRandom(data.random);
+  if ((data.stream   || []).length > 0) renderStream(data.stream);
+}
+
+// ── SPARKLINE ─────────────────────────────────────────────────────────────
+function renderSparkline(lats) {
+  const el = document.getElementById('latency-sparkline');
+  if (!lats.length) return;
+  const mx = Math.max(...lats);
+  el.innerHTML = lats.slice(-20).map(l => {
+    const h = Math.max(4, Math.round((l / (mx||1)) * 24));
+    const color = l < 150 ? 'var(--safe)' : l < 200 ? 'var(--caution)' : 'var(--alert)';
+    return `<div class="lat-bar" style="height:${h}px;background:${color}"></div>`;
+  }).join('');
+}
+
+// ── SCORE CHIP ────────────────────────────────────────────────────────────
+function scoreChip(key, val, dec) {
+  const v = parseFloat(val);
+  let cls = '';
+  if (key === 'trav' && v >= 0.68) cls = 'hi-safe';
+  else if (key === 'fused' && v >= 0.78) cls = 'hi-alert';
+  else if (key === 'fused' && v >= 0.45) cls = 'hi-caution';
+  else if ((key === 'rf'||key==='xgb'||key==='zd') && v >= 0.7) cls = 'hi-alert';
+  return `<div class="score-chip ${cls}">
+    <span class="sk">${key}</span>
+    <span class="sv">${v.toFixed(3)}</span>
+  </div>`;
+}
+
+// ── SEVERITY RING ─────────────────────────────────────────────────────────
+function severityRing(sev, dec) {
+  const r = 17, circ = 2 * Math.PI * r;
+  const fill = circ * (1 - sev);
+  const pct  = Math.round(sev * 100);
+  return `<div class="severity-ring">
+    <svg viewBox="0 0 42 42">
+      <circle class="track" cx="21" cy="21" r="${r}"/>
+      <circle class="fill"  cx="21" cy="21" r="${r}"
+        stroke-dasharray="${circ}" stroke-dashoffset="${fill}"/>
+    </svg>
+    <div class="severity-pct">${pct}%</div>
+  </div>`;
+}
+
+// ── RESULT CARD HTML ──────────────────────────────────────────────────────
+function resultCardHTML(r, label) {
+  const dec = r.decision || 'REVIEW';
+  const sev = r.severity || 0;
+  const sc  = r.scores   || {};
+  const m   = r.meta     || {};
+  const ts  = r.timestamp
+    ? new Date(r.timestamp * 1000).toLocaleTimeString('en-GB')
+    : '';
+
+  const scChips = Object.entries(sc)
+    .map(([k,v]) => scoreChip(k, v, dec)).join('');
+
+  const metaChips = [
+    m.is_zero_day  ? `<span class="meta-chip zd"><span class="dot"></span>zero-day</span>` : '',
+    m.trav_trusted ? `<span class="meta-chip tt"><span class="dot"></span>TRAV trusted</span>` : '',
+    m.latency_ms   ? `<span class="meta-chip lat">⏱ ${m.latency_ms}ms</span>` : '',
+    m.conflict     ? `<span class="meta-chip">conflict ${parseFloat(m.conflict).toFixed(3)}</span>` : '',
+  ].filter(Boolean).join('');
+
+  const labelHTML = label
+    ? `<span class="device-type">${label}</span>` : '';
+
+  return `<div class="result-card ${dec}">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="decision-badge">${ICONS[dec]||''} ${dec}</div>
+        <div class="device-info">
+          <div class="device-name">${r.device_id || '—'}</div>
+          ${labelHTML}
+        </div>
+      </div>
+      <div class="card-right">
+        ${severityRing(sev, dec)}
+        ${ts ? `<div class="timestamp">${ts}</div>` : ''}
+      </div>
+    </div>
+    <div class="card-message">
+      <div class="msg-en">${r.alert_en || r.reason || ''}</div>
+      ${r.alert_bn ? `<div class="msg-bn">${r.alert_bn}</div>` : ''}
+    </div>
+    <div class="scores-row">${scChips}</div>
+    ${metaChips ? `<div class="meta-row">${metaChips}</div>` : ''}
+  </div>`;
+}
+
+// ── SHOWCASE ──────────────────────────────────────────────────────────────
+const SCENARIO_LABELS = [
+  { n:'1', desc:'Normal home camera — BD 9am',       expect:'SAFE' },
+  { n:'2', desc:'Owner from Australia — 10pm',       expect:'SAFE' },
+  { n:'3', desc:'Hacker from Australia — 3am',       expect:'ALERT' },
+  { n:'4', desc:'New IoT device joins network',      expect:'CAUTION' },
+  { n:'5', desc:'DDoS / zero-day attack — CN',       expect:'ALERT' },
+];
+
+function renderShowcase(results) {
+  const el = document.getElementById('showcase-list');
+  document.getElementById('showcase-count').textContent =
+    `${results.length} result${results.length !== 1 ? 's' : ''}`;
+  el.innerHTML = results.map((r, i) => {
+    const sc  = SCENARIO_LABELS[i] || { n: i+1, desc: `Scenario ${i+1}`, expect:'?' };
+    const pass = r.decision === sc.expect;
+    const passHTML = `<span class="pass-badge ${pass?'pass':'note'}">${pass?'✓ PASS':'△ NOTE'}</span>`;
+    return `
+      <div class="scenario-header">
+        <span class="scenario-num">${sc.n}</span>
+        <span class="scenario-desc">${sc.desc}</span>
+        <span class="scenario-expect">expect: ${sc.expect}</span>
+        ${passHTML}
+      </div>
+      ${resultCardHTML(r, `scenario ${sc.n}`)}
+    `;
+  }).join('');
+}
+
+// ── RANDOM TABLE ──────────────────────────────────────────────────────────
+function renderRandom(results) {
+  const el = document.getElementById('random-area');
+  document.getElementById('random-count').textContent = `${results.length} flows`;
+  const rows = results.map((r, i) => {
+    const dec = r.decision || 'REVIEW';
+    const sc  = r.scores   || {};
+    const m   = r.meta     || {};
+    const src = r._src || '—';
+    const bw  = r._bw  ? `${r._bw}kbps` : '—';
+    const ctry= r._country || '—';
+    return `<tr>
+      <td style="color:var(--dim)">${i+1}</td>
+      <td><span class="tbl-badge tbl-${dec}">${ICONS[dec]||''} ${dec}</span></td>
+      <td style="font-variant-numeric:tabular-nums">${(r.severity||0).toFixed(2)}</td>
+      <td class="tbl-src-${src.toLowerCase()}">${src}</td>
+      <td>${r.device_id || '—'}</td>
+      <td>${ctry}</td>
+      <td>${bw}</td>
+      <td style="color:var(--dim)">${m.latency_ms ? m.latency_ms+'ms' : '—'}</td>
+    </tr>`;
+  }).join('');
+  el.innerHTML = `<table class="random-table">
+    <thead><tr>
+      <th>#</th><th>Decision</th><th>Sev</th><th>Source</th>
+      <th>Device</th><th>Country</th><th>BW</th><th>Latency</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ── LIVE STREAM ───────────────────────────────────────────────────────────
+let knownStreamIds = new Set();
+function renderStream(results) {
+  const el = document.getElementById('stream-list');
+  const newItems = results.filter(r => !knownStreamIds.has(r._id));
+  if (!newItems.length) return;
+  newItems.forEach(r => knownStreamIds.add(r._id));
+  document.getElementById('stream-count').textContent =
+    `${results.length} event${results.length !== 1 ? 's' : ''}`;
+  if (el.querySelector('.empty')) el.innerHTML = '';
+  // Prepend new items
+  newItems.reverse().forEach(r => {
+    const div = document.createElement('div');
+    div.innerHTML = resultCardHTML(r, r._label || '');
+    el.insertBefore(div.firstElementChild, el.firstChild);
+  });
+  // Keep max 50
+  while (el.children.length > 50) el.removeChild(el.lastChild);
+}
+</script>
+</body>
+</html>
