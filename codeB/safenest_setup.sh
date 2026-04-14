@@ -7,6 +7,7 @@ sudo apt update
 echo "Installing required tools..."
 sudo apt install -y curl p7zip-full git
 
+source ~/.bashrc
 
 if ! command -v uv &> /dev/null; then
     echo "Installing uv..."
@@ -14,10 +15,12 @@ if ! command -v uv &> /dev/null; then
     source ~/.bashrc
 fi
 
+source ~/.bashrc
+
 cd /tmp/
 
-echo "Downloading backend..."
-curl -L -o "pi-backend.7z" https://github.com/KS-Arafat/Anomaly-Detection/raw/refs/heads/main/codeB/safenest.7z
+echo "Downloading Safenest Guard backend..."
+curl -L -o "safenest.7z" https://github.com/KS-Arafat/Anomaly-Detection/raw/refs/heads/main/codeB/safenest.7z
 echo "Download complete"
 
 USER_HOME=$(eval echo ~${SUDO_USER:-$USER})

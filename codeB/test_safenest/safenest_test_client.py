@@ -595,12 +595,8 @@ def main():
     if dataset_path is None:
         # Auto-detect — balanced dataset first, full dataset as fallback
         candidates = [
-            './safenest_test_balanced.csv',        # small balanced file (recommended)
-            '../safenest_test_balanced.csv',
-            './CICIoT2023.csv',                    # full dataset fallback
-            '../CICIoT2023.csv',
-            './safenest_output/../CICIoT2023.csv',
-            os.path.expanduser('~/CICIoT2023.csv'),
+            './dataset/safenest_test_balanced.csv',        # small balanced file (recommended)
+            './dataset/CICIoT2023.csv',                    # full dataset fallback
         ]
         for c in candidates:
             if os.path.exists(c):
