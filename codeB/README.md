@@ -11,23 +11,32 @@ A small project for IoT zero-day detection with:
 ## Repo structure
 
 - README.md — this file
-- setup.sh — environment/setup helper
+- setup.sh — environment/setup helper (A)
+- safenest_setup.sh — Safenest environment/setup helper (B)
 - Endpoint-Fuzzing/
-  - fuzzing.py — endpoint fuzzing script to generate test inputs
-  - fuzzing_results.csv — sample/previous fuzzing output
-  - requirements.txt — Python deps for fuzzing
-  - dataset/TON_IoT.csv — dataset used for fuzzing/experiments
+  - fuzzing.py — endpoint fuzzing script to generate test inputs (A)
+  - fuzzing_results.csv — sample/previous fuzzing output (A)
+  - requirements.txt — Python deps for fuzzing (A)
+  - dataset/TON_IoT.csv — dataset used for fuzzing/experiments (A)
+
+- test_safenest
+  - safenest_test_client.py — Test Safenest with a Balanced Dataset (B)
+  - requirements.txt — Python deps for Safenest Test (B)
+  - safenest_test_balanced.csv — Dataset for Testing Safenest  (B)
+
 - pi-backend/
-  - main.py — backend application (serves API + UI)
-  - preprocessor.py — data preprocessing utilities
-  - feature_fields.py — feature definitions / mapping used by model
-  - requirements.txt — Python deps for backend
+  - main.py — backend application (serves API + UI) (A)
+  - preprocessor.py — data preprocessing utilities(A)
+  - feature_fields.py — feature definitions / mapping used by model (A)
+  - requirements.txt — Python deps for backend (A)
   - model/
-    - randomforest_model — serialized trained model used by main.py
-  - static/ — frontend assets (css, js, images)
-  - templates/index.html — web UI
+    - randomforest_model — serialized trained model used by main.py (A)
+  - static/ — frontend assets (css, js, images) (A)
+  - templates/index.html — web UI (A)
 
 ## Quick start
+
+### CSE499A
 
 1. Clone/copy repository and make scripts executable:
      - On Unix: bash setup.sh
@@ -46,6 +55,14 @@ A small project for IoT zero-day detection with:
 4. Run endpoint fuzzing
      - python Endpoint-Fuzzing/fuzzing.py
      - Results will be saved/printed; sample output available in fuzzing_results.csv.
+
+### CSE499B
+
+1. On Raspberry pi/Linux `curl https://raw.githubusercontent.com/KS-Arafat/Anomaly-Detection/refs/heads/main/codeB/safenest_setup.sh | bash`.
+2. After that `cd safenest`.
+3. Activate evironment with `source ./.venv/bin/activate`.
+4. Then run `python safenest_api.py`.
+5. Lastly open browser at url `http://localhost:5000` to get the Dashboard.
 
 ## Notes
 

@@ -36,7 +36,8 @@ Key activities completed in this phase include:
   - **Expected Calibration Error (ECE)**
   - **Brier Score**
 
-These steps mark the transition from **theoretical planning to practical experimentation**, providing the foundation for evaluating reliability and calibration of ML-based NIDS under cross-dataset distribution shift.
+These steps mark the transition from **theoretical planning to practical experimentation**, providing the foundation for evaluating reliability and calibration of ML-based NIDS under cross-dataset distribution shift
+
 ---
 
 ## Contributions
@@ -90,25 +91,30 @@ These steps mark the transition from **theoretical planning to practical experim
 - Selection of benchmark dataset (**CICIDS2017**)
 
 ### Dataset Preprocessing
+
 - Removal of duplicate records
 - Handling missing values
 - Label transformation (**Benign vs Attack**)
 
 ### Exploratory Data Analysis (EDA)
+
 - Feature distribution inspection
 - Correlation analysis among network traffic features
 - Visualization of class imbalance
 
 ### Feature Preparation
+
 - Normalization and scaling of numerical features
 - Preparation of feature matrices for machine learning models
 
 ### Model Implementation
+
 - Dataset splitting into **training and testing subsets**
 - Implementation of a **baseline Random Forest classifier**
 - Verification of model prediction outputs and probability scores
 
 ### Calibration Evaluation
+
 - Initial implementation of calibration metrics:
   - **Expected Calibration Error (ECE)**
   - **Brier Score**
@@ -120,6 +126,7 @@ These steps mark the transition from **theoretical planning to practical experim
 - Training baseline machine learning models
 
 ### Performance Evaluation
+
 - Generating classification metrics:
   - Accuracy
   - Precision

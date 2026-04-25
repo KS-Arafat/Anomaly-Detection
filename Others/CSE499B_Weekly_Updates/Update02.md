@@ -37,6 +37,7 @@ Also, I contributed to the initial implementation of calibration evaluation by w
 I assisted in reviewing selected research papers related to advanced IDS architectures and calibration methods. I contributed to summarizing key insights from the literature and supported discussions on how these approaches connect to our cross-dataset reliability framework.
 
 ### Rakibul Hasan Ridoy (1731339042)
+
 In my part of the project, I analyzed recent research to identify gaps related to reliability and calibration in ML-based intrusion detection systems.
 For example, Appiahene et al. (2026) proposed a graph-CNN combined with a Transformer model and achieved around 96.9% accuracy. However, like many IDS studies, they only reported accuracy and did not evaluate calibration — meaning they did not check whether the model’s confidence scores were actually reliable.
 On the other hand, Nasir et al. (2025) developed an attention-based LSTM ensemble for smart-grid intrusion detection. They discovered that their model was severely underconfident on rare attacks and recommended post-hoc calibration methods like Platt scaling and isotonic regression.

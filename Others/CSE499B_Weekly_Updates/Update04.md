@@ -1,4 +1,5 @@
-# Update Report 04  
+# Update Report 04
+
 ## Reliability and Calibration of ML-based NIDS Under Cross-Dataset Distribution Shift  
 
 **Course:** CSE499B  
@@ -10,7 +11,7 @@
 ## Team Members
 
 | Name | ID |
-|------|----|
+| ------ | ---- |
 | Kazi Safin Arafat | 2211778642 |
 | Khondokar Sajid | 2211954042 |
 | Moushumi Akter Mow | 2021983642 |
@@ -31,18 +32,21 @@ Additionally, real-world mobile traffic data was collected and used to evaluate 
 ## Contributions
 
 ### Khondokar Sajid (2211954042)
-Implemented the core system pipeline, including phishing detection, network traffic analysis, and deep learning–based feature representation. Developed the hybrid attention-based model to capture complex relationships in network data and designed the fusion mechanism to combine multiple signals into a final decision. 
+
+Implemented the core system pipeline, including phishing detection, network traffic analysis, and deep learning–based feature representation. Developed the hybrid attention-based model to capture complex relationships in network data and designed the fusion mechanism to combine multiple signals into a final decision.
 
 Also handled real-world data collection using mobile traffic (PCAPdroid) and performed testing on both normal and attack-injected scenarios to evaluate system behavior in realistic conditions.
 
 ---
 
 ### Moushumi Akter Mow (2021983642)
+
 Worked on network dataset preparation and analysis. Conducted detailed exploration of the CICIDS2017 dataset, including feature understanding, cleaning, and preprocessing. Implemented feature selection and scaling techniques and supported preparation of structured data for model training and evaluation.
 
 ---
 
 ### Rakibul Hasan Ridoy (1731339042)
+
 Assisted in data preprocessing and pipeline setup. Contributed to handling feature transformations, organizing datasets, and supporting the implementation of the network traffic processing workflow. Helped in preparing data for experiments and validation.
 
 ---

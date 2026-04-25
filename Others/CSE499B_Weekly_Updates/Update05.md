@@ -1,4 +1,5 @@
 # Update Report 05
+
 ## Reliability and Calibration of ML-based NIDS Under Cross-Dataset Distribution Shift  
 
 **Course:** CSE499B  
@@ -10,7 +11,7 @@
 ## Team Members
 
 | Name | ID |
-|------|----|
+| ------ | ---- |
 | Kazi Safin Arafat | 2211778642 |
 | Khondokar Sajid | 2211954042 |
 | Moushumi Akter Mow | 2021983642 |
@@ -40,11 +41,11 @@ I contributed to the development of a network logging system by designing and im
   I Contributed to reviewing and improving the feature processing pipeline, including the generation and handling of embeddings from the model. Actively assisted in analyzing anomaly detection outputs, ensuring a clear and reliable distinction between known and unknown attack samples. Verified the correctness and consistency of input feature scaling and feature selection processes to maintain data quality and model performance. Additionally, supported debugging efforts by identifying and helping resolve issues during implementation, and participated in thorough result checking and validation to ensure the overall reliability and accuracy of the system.
 
 ### Rakibul Hasan Ridoy (1731339042)
-"This week, I moved from pipeline construction to active data deployment. I focused on integrating the preprocessed datasets into the model environment and validating the end-to-end flow of the network traffic workflow. By running initial baseline experiments, I verified that the feature transformations are functioning as intended and identified key areas in the pipeline for further performance optimization.Additionally,refined the data loading process to handle high-volume traffic datasets, significantly reducing preprocessing latency. 
+
+"This week, I moved from pipeline construction to active data deployment. I focused on integrating the preprocessed datasets into the model environment and validating the end-to-end flow of the network traffic workflow. By running initial baseline experiments, I verified that the feature transformations are functioning as intended and identified key areas in the pipeline for further performance optimization.Additionally,refined the data loading process to handle high-volume traffic datasets, significantly reducing preprocessing latency.
 
 ---
 
 ## Completed Tasks
-
 
 ---
