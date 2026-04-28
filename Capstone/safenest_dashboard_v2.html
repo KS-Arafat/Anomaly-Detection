@@ -1,0 +1,2542 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+		/>
+		<title>SafeNest Guard</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Hind+Siliguri:wght@400;500;600&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			:root {
+				--bg: #060b14;
+				--bg2: #0a1220;
+				--bg3: #0f1a2e;
+				--bg4: #152038;
+				--border: #1a2840;
+				--border2: #223352;
+				--text: #ecf1fa;
+				--text2: #7a93b5;
+				--text3: #3d5577;
+				--safe: #00d68f;
+				--safe-dim: #00d68f22;
+				--safe-mid: #00d68f55;
+				--watch: #ffb020;
+				--watch-dim: #ffb02022;
+				--watch-mid: #ffb02055;
+				--threat: #ff4757;
+				--threat-dim: #ff475722;
+				--threat-mid: #ff475555;
+				--accent: #4a9eff;
+				--accent-dim: #4a9eff18;
+				--purple: #9b72ff;
+				--purple-dim: #9b72ff18;
+				--r: 14px;
+				--r-sm: 9px;
+				--r-xs: 6px;
+			}
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+				-webkit-tap-highlight-color: transparent;
+			}
+			html,
+			body {
+				height: 100%;
+				overflow: hidden;
+			}
+			body {
+				background: var(--bg);
+				color: var(--text);
+				font-family: "Outfit", sans-serif;
+				font-size: 14px;
+				line-height: 1.5;
+				display: flex;
+				flex-direction: column;
+			}
+			.bn {
+				font-family: "Hind Siliguri", "Outfit", sans-serif;
+			}
+			.mono {
+				font-family: "JetBrains Mono", monospace;
+			}
+
+			/* ── SCROLLABLE CONTENT ── */
+			.pages-wrap {
+				flex: 1;
+				overflow: hidden;
+				position: relative;
+			}
+			.page {
+				position: absolute;
+				inset: 0;
+				overflow-y: auto;
+				overflow-x: hidden;
+				padding: 16px 16px 80px;
+				display: none;
+				scroll-behavior: smooth;
+			}
+			.page.active {
+				display: block;
+			}
+			.page::-webkit-scrollbar {
+				width: 3px;
+			}
+			.page::-webkit-scrollbar-thumb {
+				background: var(--border2);
+				border-radius: 2px;
+			}
+
+			/* ── HEADER ── */
+			.header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding-bottom: 16px;
+				margin-bottom: 4px;
+				border-bottom: 1px solid var(--border);
+			}
+			.logo {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+			.logo-shield {
+				width: 36px;
+				height: 36px;
+				background: linear-gradient(135deg, var(--safe-dim), var(--accent-dim));
+				border: 1px solid var(--safe-mid);
+				border-radius: 10px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.logo-shield svg {
+				width: 20px;
+				height: 20px;
+				stroke: var(--safe);
+			}
+			.logo-info .name {
+				font-size: 17px;
+				font-weight: 700;
+				letter-spacing: -0.3px;
+			}
+			.logo-info .tag {
+				font-size: 10.5px;
+				color: var(--text3);
+				margin-top: 1px;
+			}
+			.header-right {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+			.live-badge {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				padding: 4px 11px;
+				border-radius: 20px;
+				background: var(--safe-dim);
+				border: 1px solid var(--safe-mid);
+				font-size: 11px;
+				color: var(--safe);
+				font-weight: 500;
+			}
+			.live-dot {
+				width: 5px;
+				height: 5px;
+				border-radius: 50%;
+				background: var(--safe);
+				animation: blink 2s infinite;
+			}
+			@keyframes blink {
+				0%,
+				100% {
+					opacity: 1;
+				}
+				50% {
+					opacity: 0.3;
+				}
+			}
+			.lang-pill {
+				padding: 4px 12px;
+				border: 1px solid var(--border2);
+				border-radius: 20px;
+				background: transparent;
+				color: var(--text2);
+				font-size: 11.5px;
+				font-weight: 500;
+				cursor: pointer;
+				font-family: "Outfit", sans-serif;
+				transition: 0.2s;
+			}
+			.lang-pill:hover {
+				background: var(--bg3);
+				color: var(--text);
+				border-color: var(--accent);
+			}
+
+			/* ── HEALTH SCORE ── */
+			.health-card {
+				background: var(--bg2);
+				border: 1px solid var(--border);
+				border-radius: var(--r);
+				padding: 18px 20px;
+				margin-bottom: 14px;
+				display: flex;
+				align-items: center;
+				gap: 16px;
+			}
+			.health-ring-wrap {
+				position: relative;
+				flex-shrink: 0;
+			}
+			.health-ring-wrap svg {
+				transform: rotate(-90deg);
+			}
+			.health-ring-center {
+				position: absolute;
+				inset: 0;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+			}
+			.health-pct {
+				font-size: 22px;
+				font-weight: 700;
+				font-family: "JetBrains Mono", monospace;
+				line-height: 1;
+			}
+			.health-label {
+				font-size: 9px;
+				color: var(--text3);
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+				margin-top: 2px;
+			}
+			.health-info {
+				flex: 1;
+				min-width: 0;
+			}
+			.health-title {
+				font-size: 15px;
+				font-weight: 600;
+				margin-bottom: 2px;
+			}
+			.health-sub {
+				font-size: 12px;
+				color: var(--text2);
+				line-height: 1.4;
+			}
+			.health-badges {
+				display: flex;
+				gap: 6px;
+				margin-top: 10px;
+				flex-wrap: wrap;
+			}
+			.hbadge {
+				padding: 3px 10px;
+				border-radius: 20px;
+				font-size: 10.5px;
+				font-weight: 500;
+			}
+
+			/* ── STAT STRIP ── */
+			.stat-strip {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: 8px;
+				margin-bottom: 14px;
+			}
+			.stat-card {
+				background: var(--bg2);
+				border: 1px solid var(--border);
+				border-radius: var(--r-sm);
+				padding: 12px 14px;
+				position: relative;
+				overflow: hidden;
+			}
+			.stat-card::before {
+				content: "";
+				position: absolute;
+				top: 0;
+				right: 0;
+				width: 60px;
+				height: 60px;
+				border-radius: 50%;
+				opacity: 0.07;
+				transform: translate(20px, -20px);
+			}
+			.stat-card.s-safe::before {
+				background: var(--safe);
+			}
+			.stat-card.s-accent::before {
+				background: var(--accent);
+			}
+			.stat-card.s-watch::before {
+				background: var(--watch);
+			}
+			.stat-card.s-purple::before {
+				background: var(--purple);
+			}
+			.stat-lbl {
+				font-size: 10px;
+				color: var(--text3);
+				text-transform: uppercase;
+				letter-spacing: 0.07em;
+				margin-bottom: 4px;
+			}
+			.stat-val {
+				font-size: 20px;
+				font-weight: 700;
+				font-family: "JetBrains Mono", monospace;
+				line-height: 1;
+			}
+			.stat-desc {
+				font-size: 10.5px;
+				color: var(--text3);
+				margin-top: 3px;
+			}
+
+			/* ── SECTION LABEL ── */
+			.sec-lbl {
+				font-size: 10.5px;
+				font-weight: 600;
+				color: var(--text3);
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				margin-bottom: 10px;
+			}
+
+			/* ── DEVICE CARDS ── */
+			.device-list {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				margin-bottom: 14px;
+			}
+			.dcard {
+				background: var(--bg2);
+				border: 1px solid var(--border);
+				border-radius: var(--r);
+				padding: 14px 16px;
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				cursor: pointer;
+				transition:
+					border-color 0.25s,
+					background 0.25s;
+				position: relative;
+				overflow: hidden;
+			}
+			.dcard:hover {
+				background: var(--bg3);
+			}
+			.dcard.safe {
+				border-left: 3px solid var(--safe);
+			}
+			.dcard.watch {
+				border-left: 3px solid var(--watch);
+				border-color: var(--watch-mid);
+			}
+			.dcard.threat {
+				border-left: 3px solid var(--threat);
+				border-color: var(--threat-mid);
+				animation: threat-glow 2s ease-in-out infinite;
+			}
+			@keyframes threat-glow {
+				0%,
+				100% {
+					box-shadow: 0 0 0 0 var(--threat-dim);
+				}
+				50% {
+					box-shadow: 0 0 0 6px var(--threat-dim);
+				}
+			}
+			.dcard-icon {
+				width: 44px;
+				height: 44px;
+				border-radius: 11px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-shrink: 0;
+			}
+			.dcard-icon svg {
+				width: 22px;
+				height: 22px;
+			}
+			.dcard-body {
+				flex: 1;
+				min-width: 0;
+			}
+			.dcard-name {
+				font-size: 13.5px;
+				font-weight: 600;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.dcard-status {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				margin-top: 3px;
+			}
+			.status-dot {
+				width: 6px;
+				height: 6px;
+				border-radius: 50%;
+				flex-shrink: 0;
+			}
+			.status-word {
+				font-size: 11px;
+				font-weight: 600;
+				letter-spacing: 0.03em;
+			}
+			.dcard-trust {
+				text-align: right;
+				flex-shrink: 0;
+			}
+			.trust-big {
+				font-size: 22px;
+				font-weight: 700;
+				font-family: "JetBrains Mono", monospace;
+				line-height: 1;
+			}
+			.trust-lbl {
+				font-size: 9.5px;
+				color: var(--text3);
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+				margin-top: 1px;
+			}
+
+			/* ── TRUST METER (bar under device card) ── */
+			.trust-bar-wrap {
+				height: 3px;
+				background: var(--border);
+				border-radius: 2px;
+				margin-top: 8px;
+				overflow: hidden;
+			}
+			.trust-bar-fill {
+				height: 100%;
+				border-radius: 2px;
+				transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+
+			/* ── ALERT FEED ── */
+			.alert-feed-box {
+				background: var(--bg2);
+				border: 1px solid var(--border);
+				border-radius: var(--r);
+				padding: 14px;
+				margin-bottom: 14px;
+			}
+			.alert-feed-hdr {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 10px;
+			}
+			.alert-list {
+				display: flex;
+				flex-direction: column;
+				gap: 6px;
+				max-height: 260px;
+				overflow-y: auto;
+			}
+			.alert-list::-webkit-scrollbar {
+				width: 3px;
+			}
+			.alert-list::-webkit-scrollbar-thumb {
+				background: var(--border2);
+			}
+			.alert-row {
+				border-radius: var(--r-sm);
+				padding: 10px 12px;
+				border-left: 3px solid;
+				cursor: pointer;
+				transition: opacity 0.15s;
+			}
+			.alert-row:hover {
+				opacity: 0.85;
+			}
+			.alert-row-top {
+				display: flex;
+				justify-content: space-between;
+				gap: 8px;
+			}
+			.alert-txt {
+				font-size: 12.5px;
+				line-height: 1.4;
+				flex: 1;
+			}
+			.alert-time-txt {
+				font-size: 10px;
+				color: var(--text3);
+				flex-shrink: 0;
+				align-self: flex-start;
+				margin-top: 1px;
+			}
+			.alert-hint {
+				font-size: 10.5px;
+				color: var(--text3);
+				margin-top: 4px;
+			}
+			.no-alert-msg {
+				text-align: center;
+				padding: 24px 0;
+				color: var(--text3);
+				font-size: 12px;
+			}
+			.clear-btn-sm {
+				font-size: 10.5px;
+				color: var(--text3);
+				background: none;
+				border: none;
+				cursor: pointer;
+				padding: 0;
+				font-family: "Outfit", sans-serif;
+			}
+			.clear-btn-sm:hover {
+				color: var(--text);
+			}
+
+			/* ── TRAV PANEL ── */
+			.trav-box {
+				background: var(--bg2);
+				border: 1px solid var(--border);
+				border-radius: var(--r);
+				padding: 16px;
+				margin-bottom: 14px;
+			}
+			.trav-title-row {
+				display: flex;
+				justify-content: space-between;
+				align-items: baseline;
+				margin-bottom: 12px;
+			}
+			.trav-row {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				margin-bottom: 8px;
+			}
+			.trav-lbl {
+				font-size: 11.5px;
+				color: var(--text2);
+				width: 165px;
+				flex-shrink: 0;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.trav-bar-bg {
+				flex: 1;
+				height: 5px;
+				background: var(--border);
+				border-radius: 3px;
+				overflow: hidden;
+			}
+			.trav-bar-inner {
+				height: 100%;
+				border-radius: 3px;
+				transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+			.trav-val {
+				width: 36px;
+				text-align: right;
+				font-size: 11px;
+				font-weight: 600;
+				font-family: "JetBrains Mono", monospace;
+			}
+			.trav-sep {
+				border: none;
+				border-top: 1px dashed var(--border2);
+				margin: 6px 0;
+			}
+
+			/* ── SCENARIO BUTTONS ── */
+			.scenario-box {
+				background: var(--bg2);
+				border: 1px solid var(--border);
+				border-radius: var(--r);
+				padding: 14px;
+				margin-bottom: 14px;
+			}
+			.sc-grid {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: 7px;
+				margin-top: 10px;
+			}
+			.sc-btn {
+				padding: 9px 10px;
+				border: 1px solid var(--border2);
+				border-radius: var(--r-sm);
+				background: transparent;
+				color: var(--text2);
+				font-size: 11.5px;
+				font-family: "Outfit", sans-serif;
+				font-weight: 500;
+				cursor: pointer;
+				transition: 0.2s;
+				text-align: left;
+				line-height: 1.3;
+			}
+			.sc-btn:hover {
+				background: var(--bg4);
+				color: var(--text);
+			}
+			.sc-btn.active-safe {
+				border-color: var(--safe);
+				color: var(--safe);
+				background: var(--safe-dim);
+			}
+			.sc-btn.active-watch {
+				border-color: var(--watch);
+				color: var(--watch);
+				background: var(--watch-dim);
+			}
+			.sc-btn.active-threat {
+				border-color: var(--threat);
+				color: var(--threat);
+				background: var(--threat-dim);
+			}
+			.sc-btn:last-child:nth-child(odd) {
+				grid-column: 1/-1;
+			}
+
+			/* ── LOG PAGE ── */
+			.log-item {
+				display: flex;
+				gap: 12px;
+				padding: 10px 0;
+				border-bottom: 1px solid var(--border);
+				position: relative;
+			}
+			.log-item:last-child {
+				border-bottom: none;
+			}
+			.log-dot-col {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				padding-top: 3px;
+			}
+			.log-dot {
+				width: 9px;
+				height: 9px;
+				border-radius: 50%;
+				flex-shrink: 0;
+			}
+			.log-line {
+				width: 1px;
+				background: var(--border);
+				flex: 1;
+				margin-top: 4px;
+			}
+			.log-body {
+				flex: 1;
+				min-width: 0;
+			}
+			.log-top {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				gap: 8px;
+			}
+			.log-msg {
+				font-size: 12.5px;
+				line-height: 1.4;
+			}
+			.log-ts {
+				font-size: 10px;
+				color: var(--text3);
+				flex-shrink: 0;
+				font-family: "JetBrains Mono", monospace;
+				margin-top: 2px;
+			}
+			.log-device {
+				font-size: 10.5px;
+				color: var(--text3);
+				margin-top: 2px;
+			}
+			.log-detail {
+				font-size: 10.5px;
+				color: var(--text2);
+				margin-top: 4px;
+				padding: 6px 10px;
+				background: var(--bg3);
+				border-radius: var(--r-xs);
+				display: none;
+				line-height: 1.5;
+			}
+			.log-item.expanded .log-detail {
+				display: block;
+			}
+			.log-empty {
+				text-align: center;
+				padding: 40px 0;
+				color: var(--text3);
+			}
+
+			/* ── TECHNICAL PAGE ── */
+			.tech-section {
+				background: var(--bg2);
+				border: 1px solid var(--border);
+				border-radius: var(--r);
+				padding: 16px;
+				margin-bottom: 12px;
+			}
+			.tech-title {
+				font-size: 13px;
+				font-weight: 600;
+				color: var(--text);
+				margin-bottom: 12px;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+			.tech-title-icon {
+				width: 22px;
+				height: 22px;
+				border-radius: 6px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 12px;
+			}
+			.metric-row {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 7px 0;
+				border-bottom: 1px solid var(--border);
+			}
+			.metric-row:last-child {
+				border-bottom: none;
+			}
+			.metric-name {
+				font-size: 12px;
+				color: var(--text2);
+			}
+			.metric-value {
+				font-size: 12.5px;
+				font-weight: 600;
+				font-family: "JetBrains Mono", monospace;
+			}
+			.ablation-table {
+				width: 100%;
+				border-collapse: collapse;
+				font-size: 11px;
+				margin-top: 4px;
+			}
+			.ablation-table th {
+				text-align: left;
+				padding: 5px 8px;
+				color: var(--text3);
+				font-weight: 500;
+				border-bottom: 1px solid var(--border);
+				font-size: 10.5px;
+			}
+			.ablation-table td {
+				padding: 6px 8px;
+				border-bottom: 1px solid var(--border);
+				font-family: "JetBrains Mono", monospace;
+				font-size: 11px;
+			}
+			.ablation-table tr:last-child td {
+				border-bottom: none;
+			}
+			.ablation-table tr.highlight-row td {
+				color: var(--safe);
+			}
+			.pill-row {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 6px;
+				margin-top: 6px;
+			}
+			.tech-pill {
+				padding: 3px 10px;
+				border-radius: 20px;
+				font-size: 10.5px;
+				border: 1px solid var(--border2);
+				color: var(--text2);
+			}
+			.contribution-item {
+				padding: 10px 12px;
+				background: var(--bg3);
+				border-radius: var(--r-xs);
+				margin-bottom: 7px;
+				border-left: 3px solid;
+			}
+			.contribution-item:last-child {
+				margin-bottom: 0;
+			}
+			.contribution-title {
+				font-size: 12.5px;
+				font-weight: 600;
+				margin-bottom: 3px;
+			}
+			.contribution-desc {
+				font-size: 11.5px;
+				color: var(--text2);
+				line-height: 1.4;
+			}
+
+			/* ── BOTTOM NAV ── */
+			.bottom-nav {
+				height: 62px;
+				background: var(--bg2);
+				border-top: 1px solid var(--border);
+				display: flex;
+				align-items: stretch;
+				flex-shrink: 0;
+			}
+			.nav-btn {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 3px;
+				background: none;
+				border: none;
+				cursor: pointer;
+				color: var(--text3);
+				transition: 0.2s;
+				font-family: "Outfit", sans-serif;
+				padding: 0;
+				position: relative;
+			}
+			.nav-btn.active {
+				color: var(--accent);
+			}
+			.nav-btn.active::after {
+				content: "";
+				position: absolute;
+				top: 0;
+				left: 50%;
+				transform: translateX(-50%);
+				width: 24px;
+				height: 2px;
+				background: var(--accent);
+				border-radius: 0 0 2px 2px;
+			}
+			.nav-btn svg {
+				width: 20px;
+				height: 20px;
+			}
+			.nav-lbl {
+				font-size: 10px;
+				font-weight: 500;
+			}
+
+			/* ── MODAL ── */
+			.modal-overlay {
+				position: fixed;
+				inset: 0;
+				background: #00000088;
+				z-index: 100;
+				display: none;
+				align-items: flex-end;
+				backdrop-filter: blur(3px);
+			}
+			.modal-overlay.open {
+				display: flex;
+				animation: fade-in 0.2s ease;
+			}
+			@keyframes fade-in {
+				from {
+					opacity: 0;
+				}
+				to {
+					opacity: 1;
+				}
+			}
+			.modal-sheet {
+				background: var(--bg2);
+				border-radius: 20px 20px 0 0;
+				border-top: 1px solid var(--border2);
+				padding: 20px 20px 36px;
+				width: 100%;
+				max-height: 85vh;
+				overflow-y: auto;
+				animation: slide-up 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+			@keyframes slide-up {
+				from {
+					transform: translateY(30px);
+					opacity: 0;
+				}
+				to {
+					transform: translateY(0);
+					opacity: 1;
+				}
+			}
+			.modal-handle {
+				width: 36px;
+				height: 4px;
+				background: var(--border2);
+				border-radius: 2px;
+				margin: 0 auto 18px;
+			}
+			.modal-status-banner {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				padding: 12px 14px;
+				border-radius: var(--r-sm);
+				margin-bottom: 16px;
+			}
+			.modal-status-icon {
+				font-size: 28px;
+				line-height: 1;
+			}
+			.modal-status-title {
+				font-size: 16px;
+				font-weight: 700;
+			}
+			.modal-status-sub {
+				font-size: 12px;
+				opacity: 0.8;
+				margin-top: 2px;
+			}
+			.modal-section {
+				margin-bottom: 16px;
+			}
+			.modal-section-title {
+				font-size: 10.5px;
+				font-weight: 600;
+				color: var(--text3);
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				margin-bottom: 8px;
+			}
+			.what-happened {
+				font-size: 13.5px;
+				line-height: 1.6;
+				color: var(--text2);
+			}
+			.action-list {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+			.action-item {
+				display: flex;
+				align-items: flex-start;
+				gap: 10px;
+				padding: 10px 12px;
+				background: var(--bg3);
+				border-radius: var(--r-xs);
+			}
+			.action-num {
+				width: 20px;
+				height: 20px;
+				border-radius: 50%;
+				background: var(--accent-dim);
+				color: var(--accent);
+				font-size: 11px;
+				font-weight: 700;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-shrink: 0;
+				margin-top: 1px;
+			}
+			.action-txt {
+				font-size: 13px;
+				line-height: 1.4;
+			}
+			.score-grid {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 8px;
+			}
+			.score-box {
+				background: var(--bg3);
+				border-radius: var(--r-xs);
+				padding: 10px;
+				text-align: center;
+			}
+			.score-box-val {
+				font-size: 17px;
+				font-weight: 700;
+				font-family: "JetBrains Mono", monospace;
+			}
+			.score-box-lbl {
+				font-size: 9.5px;
+				color: var(--text3);
+				text-transform: uppercase;
+				letter-spacing: 0.06em;
+				margin-top: 2px;
+			}
+			.close-modal {
+				width: 100%;
+				padding: 12px;
+				background: var(--bg3);
+				border: 1px solid var(--border2);
+				border-radius: var(--r-sm);
+				color: var(--text2);
+				font-size: 13px;
+				font-weight: 500;
+				cursor: pointer;
+				font-family: "Outfit", sans-serif;
+				margin-top: 4px;
+				transition: 0.2s;
+			}
+			.close-modal:hover {
+				background: var(--bg4);
+				color: var(--text);
+			}
+		</style>
+	</head>
+	<body>
+		<!-- PAGES WRAPPER -->
+		<div class="pages-wrap">
+			<!-- ══ PAGE: HOME ══ -->
+			<div class="page active" id="page-home">
+				<!-- Header -->
+				<div class="header">
+					<div class="logo">
+						<div class="logo-shield">
+							<svg
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path
+									d="M12 3L20 7V13C20 17.5 16.5 21 12 22C7.5 21 4 17.5 4 13V7Z"
+								/>
+								<path d="M9 12L11 14L15 10" />
+							</svg>
+						</div>
+						<div class="logo-info">
+							<div class="name" id="txt-brand">SafeNest Guard</div>
+							<div class="tag" id="txt-tag">Intelligent IoT Protection</div>
+						</div>
+					</div>
+					<div class="header-right">
+						<div class="live-badge">
+							<div class="live-dot"></div>
+							<span id="txt-live">LIVE</span>
+						</div>
+						<button class="lang-pill" onclick="toggleLang()" id="lang-btn">
+							বাং
+						</button>
+					</div>
+				</div>
+
+				<!-- Health Score -->
+				<div class="health-card" id="health-card">
+					<div class="health-ring-wrap">
+						<svg width="80" height="80" viewBox="0 0 80 80">
+							<circle
+								cx="40"
+								cy="40"
+								r="32"
+								fill="none"
+								stroke="var(--border)"
+								stroke-width="6"
+							/>
+							<circle
+								id="health-arc"
+								cx="40"
+								cy="40"
+								r="32"
+								fill="none"
+								stroke="var(--safe)"
+								stroke-width="6"
+								stroke-linecap="round"
+								stroke-dasharray="201"
+								stroke-dashoffset="20"
+								style="
+									transition:
+										stroke-dashoffset 0.8s ease,
+										stroke 0.5s;
+								"
+							/>
+						</svg>
+						<div class="health-ring-center">
+							<div
+								class="health-pct mono"
+								id="health-pct"
+								style="color: var(--safe)"
+							>
+								90%
+							</div>
+							<div class="health-label" id="txt-secure">Secure</div>
+						</div>
+					</div>
+					<div class="health-info">
+						<div class="health-title" id="txt-home-status">
+							All Devices Protected
+						</div>
+						<div class="health-sub" id="txt-home-sub">
+							3 devices monitored · 0 threats active
+						</div>
+						<div class="health-badges" id="health-badges">
+							<span
+								class="hbadge"
+								style="
+									background: var(--safe-dim);
+									color: var(--safe);
+									border: 1px solid var(--safe-mid);
+								"
+								id="badge-safe"
+								>3 Safe</span
+							>
+						</div>
+					</div>
+				</div>
+
+				<!-- Stats -->
+				<div class="stat-strip">
+					<div class="stat-card s-safe">
+						<div class="stat-lbl" id="txt-sl0">Detection Accuracy</div>
+						<div class="stat-val mono" style="color: var(--safe)">98.3%</div>
+						<div class="stat-desc" id="txt-sd0">F1 = 0.983 on test set</div>
+					</div>
+					<div class="stat-card s-accent">
+						<div class="stat-lbl" id="txt-sl1">Zero-Day Detection</div>
+						<div class="stat-val mono" style="color: var(--accent)">96.9%</div>
+						<div class="stat-desc" id="txt-sd1">AUC on unseen attacks</div>
+					</div>
+					<div class="stat-card s-watch">
+						<div class="stat-lbl" id="txt-sl2">False Alarm Rate</div>
+						<div class="stat-val mono" style="color: var(--watch)">0.91%</div>
+						<div class="stat-desc" id="txt-sd2">Legit traffic flagged</div>
+					</div>
+					<div class="stat-card s-purple">
+						<div class="stat-lbl" id="txt-sl3">Owner Recognition</div>
+						<div class="stat-val mono" style="color: var(--purple)">92%</div>
+						<div class="stat-desc" id="txt-sd3">TRAV trust score</div>
+					</div>
+				</div>
+
+				<!-- Devices -->
+				<div class="sec-lbl" id="txt-dev-lbl">Protected Devices</div>
+				<div class="device-list" id="device-list"></div>
+
+				<!-- Alert Feed -->
+				<div class="alert-feed-box">
+					<div class="alert-feed-hdr">
+						<div class="sec-lbl" id="txt-alert-lbl">Security Alerts</div>
+						<button class="clear-btn-sm" onclick="clearAlerts()" id="txt-clear">
+							Clear
+						</button>
+					</div>
+					<div class="alert-list" id="alert-list">
+						<div class="no-alert-msg" id="txt-no-alert">All systems secure</div>
+					</div>
+				</div>
+
+				<!-- Scenarios -->
+				<div class="scenario-box">
+					<div class="sec-lbl" id="txt-sc-lbl">Live Demo Scenarios</div>
+					<div class="sc-grid" id="sc-grid"></div>
+				</div>
+			</div>
+			<!-- /page-home -->
+
+			<!-- ══ PAGE: LOG ══ -->
+			<div class="page" id="page-log">
+				<div class="header">
+					<div class="logo-info">
+						<div class="name" id="txt-log-title">Event Log</div>
+						<div class="tag" id="txt-log-sub">Tap any event for details</div>
+					</div>
+					<button class="lang-pill" onclick="toggleLang()" id="lang-btn2">
+						বাং
+					</button>
+				</div>
+				<div class="sec-lbl" id="txt-log-lbl">Recent Activity</div>
+				<div id="log-list"></div>
+			</div>
+
+			<!-- ══ PAGE: TECHNICAL ══ -->
+			<div class="page" id="page-tech">
+				<div class="header">
+					<div class="logo-info">
+						<div class="name" id="txt-tech-title">Technical Details</div>
+						<div class="tag" id="txt-tech-sub">
+							Model performance & research metrics
+						</div>
+					</div>
+					<button class="lang-pill" onclick="toggleLang()" id="lang-btn3">
+						বাং
+					</button>
+				</div>
+
+				<!-- Research Contributions -->
+				<div class="tech-section">
+					<div class="tech-title">
+						<div
+							class="tech-title-icon"
+							style="background: var(--accent-dim); color: var(--accent)"
+						>
+							🔬
+						</div>
+						<span id="txt-contrib-title">Research Contributions</span>
+					</div>
+					<div class="contribution-item" style="border-color: var(--accent)">
+						<div class="contribution-title" style="color: var(--accent)">
+							Context-Weighted Fusion (CWF v3)
+						</div>
+						<div class="contribution-desc" id="cwf-desc">
+							Logistic-regression fusion of 6 detection signals × 10-D
+							Bangladesh-aware context vector. Encodes prayer times,
+							load-shedding hours, and local ISP trust. F1 = 0.983 · AUC =
+							0.9994 · ECE = 0.0079
+						</div>
+					</div>
+					<div class="contribution-item" style="border-color: var(--safe)">
+						<div class="contribution-title" style="color: var(--safe)">
+							TRAV 2.0 — Trusted Remote Access Verification
+						</div>
+						<div class="contribution-desc" id="trav-desc">
+							5-component behavioral trust engine. Solves: owner from abroad vs
+							attacker from same country. Owner trust 0.92 · Attacker trust 0.28
+							· Separation 0.64
+						</div>
+					</div>
+					<div class="contribution-item" style="border-color: var(--purple)">
+						<div class="contribution-title" style="color: var(--purple)">
+							Three-Component Zero-Day Ensemble
+						</div>
+						<div class="contribution-desc" id="zd-desc">
+							Isolation Forest + Denoising Autoencoder + GRU Temporal. Trained
+							on benign traffic only — zero attack label exposure. AUC = 0.969
+						</div>
+					</div>
+				</div>
+
+				<!-- Model Metrics -->
+				<div class="tech-section">
+					<div class="tech-title">
+						<div
+							class="tech-title-icon"
+							style="background: var(--safe-dim); color: var(--safe)"
+						>
+							📊
+						</div>
+						<span id="txt-metrics-title">Model Performance</span>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">Supervised F1 (RF + XGBoost)</span>
+						<span class="metric-value" style="color: var(--safe)">0.9831</span>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">Detection AUC</span>
+						<span class="metric-value" style="color: var(--safe)">0.9994</span>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">Zero-Day AUC (3-component)</span>
+						<span class="metric-value" style="color: var(--accent)"
+							>0.9691</span
+						>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">Calibration ECE (before → after)</span>
+						<span class="metric-value" style="color: var(--watch)"
+							>0.0086 → 0.0048</span
+						>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">FPR on Legitimate Traffic</span>
+						<span class="metric-value" style="color: var(--safe)">0.91%</span>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">TRAV Owner Trust</span>
+						<span class="metric-value" style="color: var(--safe)"
+							>0.92 – 0.97</span
+						>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">TRAV Attacker Trust (same country)</span>
+						<span class="metric-value" style="color: var(--threat)"
+							>0.28 – 0.34</span
+						>
+					</div>
+				</div>
+
+				<!-- TRAV Breakdown -->
+				<div class="tech-section">
+					<div class="tech-title">
+						<div
+							class="tech-title-icon"
+							style="background: var(--purple-dim); color: var(--purple)"
+						>
+							🔐
+						</div>
+						<span id="txt-trav-title">TRAV 2.0 — Trust Comparison</span>
+					</div>
+					<div id="trav-rows-tech"></div>
+				</div>
+
+				<!-- Ablation -->
+				<div class="tech-section">
+					<div class="tech-title">
+						<div
+							class="tech-title-icon"
+							style="background: var(--watch-dim); color: var(--watch)"
+						>
+							🧪
+						</div>
+						<span id="txt-ablation-title">Ablation Study</span>
+					</div>
+					<table class="ablation-table">
+						<thead>
+							<tr>
+								<th>Config</th>
+								<th>F1</th>
+								<th>AUC</th>
+								<th>ECE</th>
+								<th>FPR%</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>A: RF only</td>
+								<td>0.9804</td>
+								<td>0.9988</td>
+								<td>0.0086</td>
+								<td>1.34%</td>
+							</tr>
+							<tr>
+								<td>B: RF+XGB</td>
+								<td>0.9822</td>
+								<td>0.9994</td>
+								<td>0.0071</td>
+								<td>1.02%</td>
+							</tr>
+							<tr>
+								<td>C: +Calibration</td>
+								<td>0.9836</td>
+								<td>0.9995</td>
+								<td>0.0048</td>
+								<td>0.81%</td>
+							</tr>
+							<tr>
+								<td>D: +Zero-Day</td>
+								<td>0.9737</td>
+								<td>0.9985</td>
+								<td>0.0447</td>
+								<td>2.47%</td>
+							</tr>
+							<tr class="highlight-row">
+								<td>E: +CWF v3 ★</td>
+								<td>0.9831</td>
+								<td>0.9994</td>
+								<td>0.0079</td>
+								<td>0.91%</td>
+							</tr>
+							<tr>
+								<td>F: Full (synthetic†)</td>
+								<td>0.8979</td>
+								<td>0.9994</td>
+								<td>0.0079</td>
+								<td>0.11%</td>
+							</tr>
+						</tbody>
+					</table>
+					<div style="font-size: 10px; color: var(--text3); margin-top: 8px">
+						† Row F uses synthetic TRAV trust scores. Real-world estimate ≈ Row
+						E
+					</div>
+				</div>
+
+				<!-- Dataset Tiers -->
+				<div class="tech-section">
+					<div class="tech-title">
+						<div
+							class="tech-title-icon"
+							style="background: var(--accent-dim); color: var(--accent)"
+						>
+							💾
+						</div>
+						<span>Dataset Strategy</span>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">Tier 1 — RT-IoT2022 (primary)</span
+						><span class="metric-value" style="color: var(--safe)"
+							>In-dist</span
+						>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">Tier 2 — UNSW-NB15</span
+						><span class="metric-value" style="color: var(--watch)"
+							>Enterprise OOD</span
+						>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">Tier 3 — BUET-DDoS2020</span
+						><span class="metric-value" style="color: var(--accent)"
+							>BD OOD</span
+						>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">Training samples (deduped)</span
+						><span class="metric-value">12,952</span>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">Feature dimensions</span
+						><span class="metric-value">91</span>
+					</div>
+				</div>
+
+				<!-- Tech Stack -->
+				<div class="tech-section">
+					<div class="tech-title">
+						<div class="tech-title-icon" style="background: var(--bg4)">⚙️</div>
+						<span>Deployment Stack</span>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">Hardware</span
+						><span class="metric-value">Raspberry Pi 4</span>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">MQTT Broker</span
+						><span class="metric-value">HiveMQ Cloud</span>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">Alert Delivery</span
+						><span class="metric-value">Telegram Bot</span>
+					</div>
+					<div class="metric-row">
+						<span class="metric-name">NLP Alerts</span
+						><span class="metric-value">Gemini 1.5 Flash</span>
+					</div>
+					<div style="margin-top: 10px">
+						<div class="sec-lbl" style="margin-bottom: 8px">ML Libraries</div>
+						<div class="pill-row">
+							<span class="tech-pill">scikit-learn</span>
+							<span class="tech-pill">XGBoost</span>
+							<span class="tech-pill">TensorFlow</span>
+							<span class="tech-pill">SHAP</span>
+							<span class="tech-pill">paho-mqtt</span>
+							<span class="tech-pill">Python 3.11</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /page-tech -->
+		</div>
+		<!-- /pages-wrap -->
+
+		<!-- BOTTOM NAV -->
+		<nav class="bottom-nav">
+			<button class="nav-btn active" id="nav-home" onclick="setPage('home')">
+				<svg
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.8"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="M3 12L12 4L21 12V21H15V15H9V21H3V12Z" />
+				</svg>
+				<span class="nav-lbl" id="txt-nav-home">Home</span>
+			</button>
+			<button class="nav-btn" id="nav-log" onclick="setPage('log')">
+				<svg
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.8"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<rect x="4" y="3" width="16" height="18" rx="2" />
+					<path d="M8 7h8M8 11h8M8 15h5" />
+				</svg>
+				<span class="nav-lbl" id="txt-nav-log">Log</span>
+			</button>
+			<button class="nav-btn" id="nav-tech" onclick="setPage('tech')">
+				<svg
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.8"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<circle cx="12" cy="12" r="3" />
+					<path
+						d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"
+					/>
+				</svg>
+				<span class="nav-lbl" id="txt-nav-tech">Technical</span>
+			</button>
+		</nav>
+
+		<!-- MODAL SHEET -->
+		<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+			<div class="modal-sheet" id="modal-sheet">
+				<div class="modal-handle"></div>
+				<div id="modal-content"></div>
+			</div>
+		</div>
+
+		<script>
+			// ═══════════════════════════════════════
+			// TRANSLATIONS
+			// ═══════════════════════════════════════
+			const TX = {
+				en: {
+					brand: "SafeNest Guard",
+					tag: "Intelligent IoT Protection",
+					live: "LIVE",
+					lang: "বাং",
+					devLbl: "Protected Devices",
+					alertLbl: "Security Alerts",
+					clear: "Clear",
+					noAlert: "All systems secure",
+					scLbl: "Live Demo Scenarios",
+					logTitle: "Event Log",
+					logSub: "Tap any event for details",
+					logLbl: "Recent Activity",
+					techTitle: "Technical Details",
+					techSub: "Model performance & research metrics",
+					navHome: "Home",
+					navLog: "Log",
+					navTech: "Technical",
+					sl: [
+						"Detection Accuracy",
+						"Zero-Day Detection",
+						"False Alarm Rate",
+						"Owner Recognition",
+					],
+					sd: [
+						"F1 = 0.983 on test set",
+						"AUC on unseen attacks",
+						"Legit traffic flagged",
+						"TRAV trust score",
+					],
+					devNames: {
+						camera: "Living Room Camera",
+						router: "Home Router",
+						lock: "Smart Door Lock",
+						nd: "Unknown Device",
+					},
+					statusWord: { SAFE: "SAFE", WATCH: "WATCH", THREAT: "THREAT" },
+					secure: "Secure",
+					secure_lbl: "Secure",
+					healthStatus: {
+						all_safe: [
+							"All Devices Protected",
+							"3 devices monitored · 0 threats active",
+						],
+						has_watch: [
+							"Monitoring Suspicious Activity",
+							"One or more devices under watch",
+						],
+						has_threat: ["THREAT DETECTED!", "Immediate action required"],
+					},
+					scenarios: [
+						"1 — Normal Traffic",
+						"2 — Owner from Melbourne",
+						"3 — Hacker (Singapore)",
+						"4 — New Device",
+						"5 — DDoS on Router",
+					],
+					scenarioStatus: ["safe", "safe", "threat", "watch", "threat"],
+					travRows: [
+						{ l: "Owner — Home WiFi (Dhaka)", v: 0.97, c: "var(--safe)" },
+						{ l: "Owner — Traveling (Melbourne)", v: 0.916, c: "var(--safe)" },
+						{ l: "Owner — Gazipur Office", v: 0.942, c: "var(--safe)" },
+						{
+							l: "Attacker — Foreign VPS (Singapore)",
+							v: 0.28,
+							c: "var(--threat)",
+						},
+						{ l: "Attacker — Same ISP (Dhaka)", v: 0.335, c: "var(--threat)" },
+					],
+					modals: [
+						{
+							status: "SAFE",
+							icon: "✅",
+							what: "Normal traffic detected from your Living Room Camera. Bandwidth and access patterns match your historical profile.",
+							actions: [
+								"No action needed — your device is operating normally.",
+								"Check the Live Log for a history of all events.",
+							],
+							title: "All Clear",
+							sub: "Normal traffic detected",
+						},
+						{
+							status: "SAFE",
+							icon: "✅",
+							what: "Your camera is being accessed from Melbourne, Australia. TRAV recognized the traffic pattern as yours — bandwidth, timing, and device fingerprint all match. Trust score: 92%.",
+							actions: [
+								"No action needed — TRAV confirmed this is you.",
+								"If this was NOT you, go to Settings and revoke remote access.",
+							],
+							title: "Owner Recognized Abroad",
+							sub: "Trust score 92% — TRAV verified",
+						},
+						{
+							status: "THREAT",
+							icon: "🚨",
+							what: "An attacker from Singapore is trying to access your Living Room Camera. The traffic pattern does NOT match your profile — wrong bandwidth, 3AM access, unknown device fingerprint. Trust score: 28%.",
+							actions: [
+								"Immediately change your camera password.",
+								"Disconnect the camera from the internet temporarily.",
+								"Check if your router has any unknown connected devices.",
+								"Enable two-factor authentication if available.",
+							],
+							title: "Hacker Detected",
+							sub: "Trust score 28% — Access blocked",
+						},
+						{
+							status: "WATCH",
+							icon: "⚠️",
+							what: "A new device joined your network. This could be a smart bulb, new phone, or an unknown visitor's device. SafeNest is building a 7-day trust profile before making decisions.",
+							actions: [
+								"Check if you or a family member connected a new device.",
+								"If unknown, go to your router admin panel and check connected devices.",
+								"After 7 days, SafeNest will automatically classify this device.",
+							],
+							title: "New Device Detected",
+							sub: "Building 7-day trust profile",
+						},
+						{
+							status: "THREAT",
+							icon: "🚨",
+							what: "A SYN Flood DDoS attack is targeting your Home Router. 5,000+ packets per second from an unknown IP. This can slow down or crash your internet connection.",
+							actions: [
+								"Restart your router now to drop the flood connections.",
+								"Contact your ISP — they can block the attack at their level.",
+								"Enable SYN flood protection in your router admin panel.",
+								"If the attack continues, temporarily unplug the router.",
+							],
+							title: "DDoS Attack on Router",
+							sub: "5,000+ pkt/sec SYN Flood",
+						},
+					],
+					modalScores: ["Trust", "CWF Prob", "Zero-Day"],
+				},
+				bn: {
+					brand: "সেফনেস্ট গার্ড",
+					tag: "স্মার্ট IoT সুরক্ষা",
+					live: "সক্রিয়",
+					lang: "EN",
+					devLbl: "সুরক্ষিত ডিভাইস",
+					alertLbl: "নিরাপত্তা সতর্কতা",
+					clear: "মুছুন",
+					noAlert: "সব সিস্টেম নিরাপদ",
+					scLbl: "লাইভ ডেমো দৃশ্যকল্প",
+					logTitle: "ইভেন্ট লগ",
+					logSub: "বিস্তারিতের জন্য ট্যাপ করুন",
+					logLbl: "সাম্প্রতিক কার্যকলাপ",
+					techTitle: "প্রযুক্তিগত বিবরণ",
+					techSub: "মডেল পারফরম্যান্স ও গবেষণা তথ্য",
+					navHome: "হোম",
+					navLog: "লগ",
+					navTech: "প্রযুক্তি",
+					sl: [
+						"সনাক্তকরণ নির্ভুলতা",
+						"Zero-Day সনাক্তকরণ",
+						"ভুল সতর্কতা",
+						"মালিক সনাক্ত",
+					],
+					sd: [
+						"পরীক্ষায় F1 = ০.৯৮৩",
+						"অজানা আক্রমণে AUC",
+						"বৈধ ট্র্যাফিকে",
+						"TRAV ট্রাস্ট স্কোর",
+					],
+					devNames: {
+						camera: "লিভিং রুম ক্যামেরা",
+						router: "হোম রাউটার",
+						lock: "স্মার্ট লক",
+						nd: "অজানা ডিভাইস",
+					},
+					statusWord: { SAFE: "নিরাপদ", WATCH: "সতর্ক", THREAT: "বিপদ" },
+					secure: "নিরাপদ",
+					healthStatus: {
+						all_safe: [
+							"সব ডিভাইস সুরক্ষিত",
+							"৩টি ডিভাইস পর্যবেক্ষণে · ০টি হুমকি",
+						],
+						has_watch: ["সন্দেহজনক কার্যকলাপ", "একটি ডিভাইস পর্যবেক্ষণে আছে"],
+						has_threat: ["বিপদ শনাক্ত হয়েছে!", "এখনই পদক্ষেপ নিন"],
+					},
+					scenarios: [
+						"১ — স্বাভাবিক ট্র্যাফিক",
+						"২ — মালিক Melbourne",
+						"৩ — হ্যাকার (Singapore)",
+						"৪ — নতুন ডিভাইস",
+						"৫ — Router DDoS",
+					],
+					scenarioStatus: ["safe", "safe", "threat", "watch", "threat"],
+					travRows: [
+						{ l: "মালিক — বাড়ি (ঢাকা)", v: 0.97, c: "var(--safe)" },
+						{ l: "মালিক — Melbourne", v: 0.916, c: "var(--safe)" },
+						{ l: "মালিক — গাজিপুর অফিস", v: 0.942, c: "var(--safe)" },
+						{ l: "হ্যাকার — VPS (Singapore)", v: 0.28, c: "var(--threat)" },
+						{ l: "হ্যাকার — একই ISP (ঢাকা)", v: 0.335, c: "var(--threat)" },
+					],
+					modals: [
+						{
+							status: "SAFE",
+							icon: "✅",
+							what: "আপনার লিভিং রুম ক্যামেরায় স্বাভাবিক ট্র্যাফিক শনাক্ত। ব্যান্ডউইডথ ও অ্যাক্সেস প্যাটার্ন আপনার পূর্বের রেকর্ডের সাথে মিলছে।",
+							actions: [
+								"কোনো পদক্ষেপের প্রয়োজন নেই — ডিভাইস স্বাভাবিকভাবে চলছে।",
+								"সকল ইভেন্টের ইতিহাসের জন্য লগ পেজ দেখুন।",
+							],
+							title: "সব ঠিকঠাক",
+							sub: "স্বাভাবিক ট্র্যাফিক শনাক্ত",
+						},
+						{
+							status: "SAFE",
+							icon: "✅",
+							what: "আপনার ক্যামেরা Melbourne থেকে অ্যাক্সেস হচ্ছে। TRAV ট্র্যাফিক প্যাটার্ন বিশ্লেষণ করে নিশ্চিত করেছে এটি আপনিই। ব্যান্ডউইডথ, সময় ও ডিভাইস ফিঙ্গারপ্রিন্ট মিলেছে। ট্রাস্ট: ৯২%।",
+							actions: [
+								"কোনো পদক্ষেপের প্রয়োজন নেই — TRAV আপনাকে চিনতে পেরেছে।",
+								"যদি এটি আপনি না হন, তাহলে রিমোট অ্যাক্সেস বন্ধ করুন।",
+							],
+							title: "মালিক বিদেশে শনাক্ত",
+							sub: "ট্রাস্ট ৯২% — TRAV যাচাই করেছে",
+						},
+						{
+							status: "THREAT",
+							icon: "🚨",
+							what: "Singapore থেকে একজন হ্যাকার আপনার ক্যামেরা অ্যাক্সেস করার চেষ্টা করছে। ট্র্যাফিক প্যাটার্ন আপনার নয় — ভুল ব্যান্ডউইডথ, রাত ৩টায় অ্যাক্সেস, অজানা ফিঙ্গারপ্রিন্ট। ট্রাস্ট: ২৮%।",
+							actions: [
+								"এখনই ক্যামেরার পাসওয়ার্ড পরিবর্তন করুন।",
+								"সাময়িকভাবে ক্যামেরার ইন্টারনেট সংযোগ বিচ্ছিন্ন করুন।",
+								"রাউটারে অজানা ডিভাইস আছে কিনা পরীক্ষা করুন।",
+							],
+							title: "হ্যাকার শনাক্ত!",
+							sub: "ট্রাস্ট ২৮% — প্রবেশ রোধ করা হয়েছে",
+						},
+						{
+							status: "WATCH",
+							icon: "⚠️",
+							what: "নেটওয়ার্কে একটি নতুন ডিভাইস যোগ হয়েছে। এটি নতুন স্মার্ট বাল্ব, ফোন বা অতিথির ডিভাইস হতে পারে। SafeNest ৭ দিনের জন্য এটি পর্যবেক্ষণ করবে।",
+							actions: [
+								"আপনি বা পরিবারের কেউ নতুন ডিভাইস সংযুক্ত করেছেন কিনা দেখুন।",
+								"না হলে রাউটার অ্যাডমিনে গিয়ে সংযুক্ত ডিভাইস পরীক্ষা করুন।",
+								"৭ দিন পরে SafeNest স্বয়ংক্রিয়ভাবে শ্রেণীবদ্ধ করবে।",
+							],
+							title: "নতুন ডিভাইস শনাক্ত",
+							sub: "৭ দিনের ট্রাস্ট প্রোফাইল তৈরি হচ্ছে",
+						},
+						{
+							status: "THREAT",
+							icon: "🚨",
+							what: "হোম রাউটারে SYN Flood DDoS আক্রমণ চলছে। প্রতি সেকেন্ডে ৫,০০০+ প্যাকেট আসছে। এটি আপনার ইন্টারনেট সংযোগ ধীর বা বন্ধ করে দিতে পারে।",
+							actions: [
+								"এখনই রাউটার রিস্টার্ট করুন।",
+								"আপনার ISP-কে জানান — তারা উৎস থেকে ব্লক করতে পারবে।",
+								"রাউটার সেটিংসে SYN flood সুরক্ষা চালু করুন।",
+							],
+							title: "Router-এ DDoS আক্রমণ",
+							sub: "প্রতি সেকেন্ডে ৫,০০০+ প্যাকেট",
+						},
+					],
+					modalScores: ["ট্রাস্ট", "CWF", "Zero-Day"],
+				},
+			};
+
+			// ╔═══════════════════════════════════════════════════════════╗
+			// ║           FILL IN YOUR CREDENTIALS HERE                  ║
+			// ╚═══════════════════════════════════════════════════════════╝
+
+			// 1. Backend API — where safenest_server.py is running
+			//    Same laptop: 'http://localhost:5000'
+			//    Pi on same WiFi: 'http://192.168.x.x:5000'
+			const API_BASE = "http://localhost:5000";
+
+			// 2. HiveMQ MQTT — same values as in safenest_server.py
+			//const MQTT_HOST     = 'YOUR_HIVEMQ_HOST.s1.eu.hivemq.cloud';
+			//const MQTT_USER     = 'YOUR_HIVEMQ_USERNAME';
+			//const MQTT_PASSWORD = 'YOUR_HIVEMQ_PASSWORD';
+			const MQTT_HOST = "{{MQTT_HOST}}";
+			const MQTT_USER = "{{MQTT_USER}}";
+			const MQTT_PASSWORD = "{{MQTT_PASSWORD}}";
+			// ╚═══════════════════════════════════════════════════════════╝
+			const MQTT_PORT = 8884; // do not change
+			const MQTT_TOPIC = "safenest/events";
+
+			// ═══════════════════════════════════════
+			// STATE
+			// ═══════════════════════════════════════
+			let lang = "en";
+			let currentPage = "home";
+			let activeScenario = -1;
+			let showNewDevice = false;
+			let alerts = [];
+			let eventLog = [];
+			let devices = {
+				camera: { status: "SAFE", trust: 0.97, cwf: 0.004, zd: 0.076 },
+				router: { status: "SAFE", trust: 0.95, cwf: 0.008, zd: 0.091 },
+				lock: { status: "SAFE", trust: 0.93, cwf: 0.002, zd: 0.063 },
+			};
+
+			const SC_STATUS = [
+				{ camera: "SAFE", router: "SAFE", lock: "SAFE" },
+				{ camera: "SAFE", router: "SAFE", lock: "SAFE" },
+				{ camera: "THREAT", router: "SAFE", lock: "SAFE" },
+				{ camera: "SAFE", router: "SAFE", lock: "SAFE" },
+				{ camera: "SAFE", router: "THREAT", lock: "SAFE" },
+			];
+			const SC_VALS = [
+				{
+					camera: { trust: 0.97, cwf: 0.004, zd: 0.076 },
+					router: { trust: 0.95, cwf: 0.008, zd: 0.091 },
+					lock: { trust: 0.93, cwf: 0.002, zd: 0.063 },
+				},
+				{
+					camera: { trust: 0.916, cwf: 0.004, zd: 0.076 },
+					router: { trust: 0.95, cwf: 0.008, zd: 0.091 },
+					lock: { trust: 0.93, cwf: 0.002, zd: 0.063 },
+				},
+				{
+					camera: { trust: 0.28, cwf: 0.997, zd: 0.919 },
+					router: { trust: 0.95, cwf: 0.008, zd: 0.091 },
+					lock: { trust: 0.93, cwf: 0.002, zd: 0.063 },
+				},
+				{
+					camera: { trust: 0.97, cwf: 0.004, zd: 0.076 },
+					router: { trust: 0.95, cwf: 0.008, zd: 0.091 },
+					lock: { trust: 0.93, cwf: 0.002, zd: 0.063 },
+				},
+				{
+					camera: { trust: 0.97, cwf: 0.004, zd: 0.076 },
+					router: { trust: 0.334, cwf: 0.997, zd: 0.919 },
+					lock: { trust: 0.93, cwf: 0.002, zd: 0.063 },
+				},
+			];
+
+			const DEV_ICONS = {
+				camera: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h12l2 3h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1V8a1 1 0 011-1z"/><circle cx="11" cy="12" r="2.5"/></svg>`,
+				router: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 12.5a7 7 0 0114 0"/><path d="M8 15.5a4 4 0 018 0"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg>`,
+				lock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/><circle cx="12" cy="16" r="1.5" fill="currentColor"/></svg>`,
+				nd: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>`,
+			};
+
+			const STATUS_COLOR = {
+				SAFE: {
+					c: "var(--safe)",
+					dim: "var(--safe-dim)",
+					mid: "var(--safe-mid)",
+				},
+				WATCH: {
+					c: "var(--watch)",
+					dim: "var(--watch-dim)",
+					mid: "var(--watch-mid)",
+				},
+				THREAT: {
+					c: "var(--threat)",
+					dim: "var(--threat-dim)",
+					mid: "var(--threat-mid)",
+				},
+			};
+
+			// ═══════════════════════════════════════
+			// HELPERS
+			// ═══════════════════════════════════════
+			function tx() {
+				return TX[lang];
+			}
+			function now() {
+				return new Date().toLocaleTimeString([], {
+					hour: "2-digit",
+					minute: "2-digit",
+				});
+			}
+			function toggleLang() {
+				lang = lang === "en" ? "bn" : "en";
+				renderAll();
+			}
+
+			function setPage(p) {
+				currentPage = p;
+				document
+					.querySelectorAll(".page")
+					.forEach((el) => el.classList.remove("active"));
+				document.getElementById("page-" + p).classList.add("active");
+				document
+					.querySelectorAll(".nav-btn")
+					.forEach((el) => el.classList.remove("active"));
+				document.getElementById("nav-" + p).classList.add("active");
+				if (p === "log") renderLog();
+			}
+
+			// ═══════════════════════════════════════
+			// HEALTH SCORE
+			// ═══════════════════════════════════════
+			function computeHealth() {
+				const statuses = Object.values(devices).map((d) => d.status);
+				if (showNewDevice) statuses.push("WATCH");
+				const hasT = statuses.includes("THREAT");
+				const hasW = statuses.includes("WATCH");
+				const key = hasT ? "has_threat" : hasW ? "has_watch" : "all_safe";
+				const safeDevs = statuses.filter((s) => s === "SAFE").length;
+				const totalDevs = statuses.length;
+				let pct = hasT
+					? Math.round(33 + Math.random() * 10)
+					: hasW
+						? Math.round(65 + Math.random() * 10)
+						: Math.round(88 + safeDevs * 3);
+				pct = Math.min(99, Math.max(20, pct));
+				return { pct, key, safeDevs, totalDevs, hasT, hasW };
+			}
+
+			function renderHealth() {
+				const h = computeHealth();
+				const col = h.hasT
+					? "var(--threat)"
+					: h.hasW
+						? "var(--watch)"
+						: "var(--safe)";
+				const arc = document.getElementById("health-arc");
+				const circ = 2 * Math.PI * 32;
+				arc.style.strokeDashoffset = circ * (1 - h.pct / 100);
+				arc.style.stroke = col;
+				document.getElementById("health-pct").textContent = h.pct + "%";
+				document.getElementById("health-pct").style.color = col;
+				const hs = tx().healthStatus[h.key];
+				document.getElementById("txt-home-status").textContent = hs[0];
+				document.getElementById("txt-home-sub").textContent = hs[1];
+				// Badges
+				const badges = [];
+				if (h.safeDevs)
+					badges.push(
+						`<span class="hbadge" style="background:var(--safe-dim);color:var(--safe);border:1px solid var(--safe-mid)">${h.safeDevs} ${lang === "bn" ? "নিরাপদ" : "Safe"}</span>`,
+					);
+				const watchN =
+					[...Object.values(devices)].filter((d) => d.status === "WATCH")
+						.length + (showNewDevice ? 1 : 0);
+				const threatN = [...Object.values(devices)].filter(
+					(d) => d.status === "THREAT",
+				).length;
+				if (watchN)
+					badges.push(
+						`<span class="hbadge" style="background:var(--watch-dim);color:var(--watch);border:1px solid var(--watch-mid)">${watchN} ${lang === "bn" ? "সতর্ক" : "Watch"}</span>`,
+					);
+				if (threatN)
+					badges.push(
+						`<span class="hbadge" style="background:var(--threat-dim);color:var(--threat);border:1px solid var(--threat-mid)">${threatN} ${lang === "bn" ? "বিপদ" : "Threat"}</span>`,
+					);
+				document.getElementById("health-badges").innerHTML = badges.join("");
+			}
+
+			// ═══════════════════════════════════════
+			// DEVICES
+			// ═══════════════════════════════════════
+			function renderDevices() {
+				const t = tx();
+				let html = "";
+				["camera", "router", "lock"].forEach((k) => {
+					const d = devices[k];
+					const sc = STATUS_COLOR[d.status];
+					const trustPct = Math.round(d.trust * 100);
+					html += `<div class="dcard ${d.status.toLowerCase()}" onclick="openDeviceModal('${k}')">
+      <div class="dcard-icon" style="background:${sc.dim};color:${sc.c}">${DEV_ICONS[k]}</div>
+      <div class="dcard-body">
+        <div class="dcard-name">${t.devNames[k]}</div>
+        <div class="dcard-status">
+          <div class="status-dot" style="background:${sc.c}${d.status !== "SAFE" ? ";animation:blink 1.5s infinite" : ""}"></div>
+          <span class="status-word" style="color:${sc.c}">${t.statusWord[d.status]}</span>
+        </div>
+        <div class="trust-bar-wrap" style="margin-top:6px">
+          <div class="trust-bar-fill" style="width:${trustPct}%;background:${sc.c}"></div>
+        </div>
+      </div>
+      <div class="dcard-trust">
+        <div class="trust-big mono" style="color:${sc.c}">${trustPct}%</div>
+        <div class="trust-lbl">${lang === "bn" ? "ট্রাস্ট" : "Trust"}</div>
+      </div>
+    </div>`;
+				});
+				if (showNewDevice) {
+					html += `<div class="dcard watch" onclick="openNewDeviceModal()">
+      <div class="dcard-icon" style="background:var(--watch-dim);color:var(--watch)">${DEV_ICONS.nd}</div>
+      <div class="dcard-body">
+        <div class="dcard-name">${t.devNames.nd}</div>
+        <div class="dcard-status">
+          <div class="status-dot" style="background:var(--watch);animation:blink 1.5s infinite"></div>
+          <span class="status-word" style="color:var(--watch)">${t.statusWord.WATCH}</span>
+          <span style="font-size:10px;color:var(--text3);margin-left:4px">· IP 192.168.0.41</span>
+        </div>
+        <div class="trust-bar-wrap"><div class="trust-bar-fill" style="width:50%;background:var(--watch)"></div></div>
+      </div>
+      <div class="dcard-trust">
+        <div class="trust-big mono" style="color:var(--watch)">--</div>
+        <div class="trust-lbl">${lang === "bn" ? "৭ দিন" : "7-day"}</div>
+      </div>
+    </div>`;
+				}
+				document.getElementById("device-list").innerHTML = html;
+			}
+
+			// ═══════════════════════════════════════
+			// ALERTS
+			// ═══════════════════════════════════════
+			function addAlert(status, msg, detail = "") {
+				const e = { status, msg, detail, time: now() };
+				alerts.unshift(e);
+				eventLog.unshift({ ...e, device: msg.split(":")[0] || "System" });
+				if (alerts.length > 15) alerts.pop();
+				renderAlerts();
+			}
+
+			function clearAlerts() {
+				alerts = [];
+				renderAlerts();
+			}
+
+			function renderAlerts() {
+				const t = tx();
+				const list = document.getElementById("alert-list");
+				if (!alerts.length) {
+					list.innerHTML = `<div class="no-alert-msg">${t.noAlert}</div>`;
+					return;
+				}
+				const cfgMap = {
+					SAFE: { b: "var(--safe)", bg: "var(--safe-dim)" },
+					WATCH: { b: "var(--watch)", bg: "var(--watch-dim)" },
+					THREAT: { b: "var(--threat)", bg: "var(--threat-dim)" },
+				};
+				list.innerHTML = alerts
+					.map((a, i) => {
+						const c = cfgMap[a.status];
+						return `<div class="alert-row" style="border-left-color:${c.b};background:${c.bg}" onclick="openAlertModal(${i})">
+      <div class="alert-row-top">
+        <span class="alert-txt">${a.msg}</span>
+        <span class="alert-time-txt">${a.time}</span>
+      </div>
+      <div class="alert-hint" style="color:${c.b}">${lang === "bn" ? "বিস্তারিত দেখতে ট্যাপ করুন →" : "Tap for details & actions →"}</div>
+    </div>`;
+					})
+					.join("");
+			}
+
+			// ═══════════════════════════════════════
+			// SCENARIOS
+			// ═══════════════════════════════════════
+			function renderScenarios() {
+				const t = tx();
+				document.getElementById("sc-grid").innerHTML = t.scenarios
+					.map((s, i) => {
+						const active = activeScenario === i;
+						const cls = active ? `active-${t.scenarioStatus[i]}` : "";
+						return `<button class="sc-btn ${cls}" onclick="runScenario(${i})">${s}</button>`;
+					})
+					.join("");
+			}
+
+			function runScenario(n) {
+				activeScenario = n;
+				showNewDevice = false;
+				const t = tx();
+
+				// ── Call the real API backend ──────────────────────────────────
+				fetch(`${API_BASE}/scenario/${n}`, {
+					method: "POST",
+					signal: AbortSignal.timeout(8000),
+				})
+					.then((r) => r.json())
+					.then((data) => {
+						// Update device state from real inference result
+						const devKey = {
+							home_camera: "camera",
+							home_router: "router",
+							home_lock: "lock",
+						}[data.device_id];
+						if (devKey && devices[devKey]) {
+							devices[devKey].status = data.decision;
+							devices[devKey].trust = data.trust;
+							devices[devKey].cwf = data.cwf_prob;
+							devices[devKey].zd = data.zd || 0;
+						}
+						if (n === 3) showNewDevice = true;
+						// Build alert message from real result
+						const msg = buildAlertMsg(data, devKey || "camera");
+						const detail = buildAlertDetail(data);
+						addAlert(data.decision, msg, detail);
+						renderAll();
+						if (data.decision === "THREAT")
+							setTimeout(() => openScenarioModal(n), 400);
+					})
+					.catch(() => {
+						// API offline — fall back to simulated values (demo still works)
+						Object.assign(devices.camera, SC_VALS[n].camera);
+						devices.camera.status = SC_STATUS[n].camera;
+						Object.assign(devices.router, SC_VALS[n].router);
+						devices.router.status = SC_STATUS[n].router;
+						Object.assign(devices.lock, SC_VALS[n].lock);
+						devices.lock.status = SC_STATUS[n].lock;
+						if (n === 3) showNewDevice = true;
+						const m = t.modals[n];
+						const devKey = ["camera", "camera", "camera", "nd", "router"][n];
+						const devName = t.devNames[devKey];
+						const alertStatus =
+							n === 2 || n === 4 ? "THREAT" : n === 3 ? "WATCH" : "SAFE";
+						const msgs = {
+							SAFE: [
+								`${devName}: normal traffic — all clear.`,
+								`${devName}: owner recognized from Melbourne. Trust 92% ✓`,
+							],
+							THREAT: [
+								`🚨 ALERT: ${devName} — hacker from Singapore. Trust 28%!`,
+								`🚨 ALERT: ${devName} — DDoS SYN flood. 5,000+ pkt/sec!`,
+							],
+							WATCH: [`⚠️ New device joined network — 7-day profile started.`],
+						};
+						const msgIdx = n === 4 ? 1 : 0;
+						addAlert(
+							alertStatus,
+							(msgs[alertStatus] || msgs.SAFE)[msgIdx] || msgs[alertStatus][0],
+							m.what,
+						);
+						renderAll();
+						if (n === 2 || n === 4) setTimeout(() => openScenarioModal(n), 400);
+					});
+
+				// Update scenario button highlight immediately (don't wait for API)
+				renderScenarios();
+			}
+
+			// ═══════════════════════════════════════
+			// LOG PAGE
+			// ═══════════════════════════════════════
+			function renderLog() {
+				const list = document.getElementById("log-list");
+				if (!eventLog.length) {
+					list.innerHTML = `<div class="log-empty">${lang === "bn" ? "কোনো ইভেন্ট নেই" : "No events yet. Run a demo scenario on the Home page."}</div>`;
+					return;
+				}
+				const cfgMap = {
+					SAFE: "var(--safe)",
+					WATCH: "var(--watch)",
+					THREAT: "var(--threat)",
+				};
+				list.innerHTML = eventLog
+					.map(
+						(e, i) => `
+    <div class="log-item" onclick="this.classList.toggle('expanded')" style="cursor:pointer">
+      <div class="log-dot-col">
+        <div class="log-dot" style="background:${cfgMap[e.status]}"></div>
+        ${i < eventLog.length - 1 ? '<div class="log-line"></div>' : ""}
+      </div>
+      <div class="log-body">
+        <div class="log-top">
+          <span class="log-msg">${e.msg}</span>
+          <span class="log-ts">${e.time}</span>
+        </div>
+        <div class="log-device" style="color:${cfgMap[e.status]}">${e.status}</div>
+        ${e.detail ? `<div class="log-detail">${e.detail}</div>` : ""}
+      </div>
+    </div>`,
+					)
+					.join("");
+			}
+
+			// ═══════════════════════════════════════
+			// TRAV (both pages)
+			// ═══════════════════════════════════════
+			function renderTrav(containerId) {
+				const rows = tx().travRows;
+				let html = "";
+				rows.forEach((r, i) => {
+					if (i === 3) html += `<hr class="trav-sep">`;
+					html += `<div class="trav-row">
+      <div class="trav-lbl">${r.l}</div>
+      <div class="trav-bar-bg"><div class="trav-bar-inner" style="width:${(r.v * 100).toFixed(0)}%;background:${r.c}"></div></div>
+      <div class="trav-val" style="color:${r.c}">${r.v.toFixed(3)}</div>
+    </div>`;
+				});
+				const el = document.getElementById(containerId);
+				if (el) el.innerHTML = html;
+			}
+
+			// ═══════════════════════════════════════
+			// MODALS
+			// ═══════════════════════════════════════
+			function openModal(html) {
+				document.getElementById("modal-content").innerHTML = html;
+				document.getElementById("modal-overlay").classList.add("open");
+			}
+			function closeModal(e) {
+				if (!e || e.target === document.getElementById("modal-overlay"))
+					document.getElementById("modal-overlay").classList.remove("open");
+			}
+			function _modalFooter() {
+				return `<button class="close-modal" onclick="closeModal()">${lang === "bn" ? "বন্ধ করুন" : "Close"}</button>`;
+			}
+
+			function openScenarioModal(n) {
+				const t = tx();
+				const m = t.modals[n];
+				const dev = devices[["camera", "camera", "camera", "nd", "router"][n]];
+				const trust =
+					(n === 3 ? 50 : Math.round((dev?.trust || 0.5) * 100)) + "%";
+				const cwf = dev ? dev.cwf.toFixed(3) : "—";
+				const zd = dev ? dev.zd.toFixed(3) : "—";
+				const sc = STATUS_COLOR[m.status];
+				openModal(`
+    <div class="modal-status-banner" style="background:${sc.dim};border:1px solid ${sc.mid}">
+      <div class="modal-status-icon">${m.icon}</div>
+      <div><div class="modal-status-title" style="color:${sc.c}">${m.title}</div>
+      <div class="modal-status-sub" style="color:${sc.c}">${m.sub}</div></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">${lang === "bn" ? "কী ঘটেছে" : "What Happened"}</div>
+      <div class="what-happened">${m.what}</div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">${lang === "bn" ? "এখন কী করবেন" : "What To Do"}</div>
+      <div class="action-list">${m.actions.map((a, i) => `<div class="action-item"><div class="action-num">${i + 1}</div><div class="action-txt">${a}</div></div>`).join("")}</div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">${lang === "bn" ? "স্কোর" : "Detection Scores"}</div>
+      <div class="score-grid">
+        <div class="score-box"><div class="score-box-val" style="color:${sc.c}">${trust}</div><div class="score-box-lbl">${t.modalScores[0]}</div></div>
+        <div class="score-box"><div class="score-box-val" style="color:${sc.c}">${cwf}</div><div class="score-box-lbl">${t.modalScores[1]}</div></div>
+        <div class="score-box"><div class="score-box-val" style="color:${sc.c}">${zd}</div><div class="score-box-lbl">${t.modalScores[2]}</div></div>
+      </div>
+    </div>
+    ${_modalFooter()}`);
+			}
+
+			function openDeviceModal(k) {
+				if (activeScenario >= 0) {
+					const devKeys = ["camera", "camera", "camera", "nd", "router"];
+					if (devKeys[activeScenario] === k || k === devKeys[activeScenario]) {
+						openScenarioModal(activeScenario);
+						return;
+					}
+				}
+				const t = tx();
+				const d = devices[k];
+				const sc = STATUS_COLOR[d.status];
+				const trustPct = Math.round(d.trust * 100);
+				openModal(`
+    <div class="modal-status-banner" style="background:${sc.dim};border:1px solid ${sc.mid}">
+      <div class="modal-status-icon">${d.status === "SAFE" ? "✅" : d.status === "WATCH" ? "⚠️" : "🚨"}</div>
+      <div><div class="modal-status-title" style="color:${sc.c}">${t.devNames[k]}</div>
+      <div class="modal-status-sub" style="color:${sc.c}">${t.statusWord[d.status]} — ${lang === "bn" ? "ট্রাস্ট" : "Trust"}: ${trustPct}%</div></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">${lang === "bn" ? "ডিভাইস স্কোর" : "Device Scores"}</div>
+      <div class="score-grid">
+        <div class="score-box"><div class="score-box-val" style="color:${sc.c}">${trustPct}%</div><div class="score-box-lbl">Trust</div></div>
+        <div class="score-box"><div class="score-box-val" style="color:${sc.c}">${d.cwf.toFixed(3)}</div><div class="score-box-lbl">CWF Prob</div></div>
+        <div class="score-box"><div class="score-box-val" style="color:${sc.c}">${d.zd.toFixed(3)}</div><div class="score-box-lbl">Zero-Day</div></div>
+      </div>
+    </div>
+    ${_modalFooter()}`);
+			}
+
+			function openNewDeviceModal() {
+				openScenarioModal(3);
+			}
+
+			function openAlertModal(i) {
+				if (activeScenario >= 0) {
+					const map = [0, 1, 2, 3, 4];
+					openScenarioModal(activeScenario);
+					return;
+				}
+				const a = alerts[i];
+				const sc = STATUS_COLOR[a.status];
+				openModal(`
+    <div class="modal-status-banner" style="background:${sc.dim};border:1px solid ${sc.mid}">
+      <div class="modal-status-icon">${a.status === "SAFE" ? "✅" : a.status === "WATCH" ? "⚠️" : "🚨"}</div>
+      <div><div class="modal-status-title" style="color:${sc.c}">${a.msg.split(".")[0]}</div>
+      <div class="modal-status-sub" style="color:${sc.c}">${a.time}</div></div>
+    </div>
+    ${a.detail ? `<div class="modal-section"><div class="modal-section-title">${lang === "bn" ? "বিস্তারিত" : "Details"}</div><div class="what-happened">${a.detail}</div></div>` : ""}
+    ${_modalFooter()}`);
+			}
+
+			// ═══════════════════════════════════════
+			// STATIC TEXT UPDATES
+			// ═══════════════════════════════════════
+			function renderStatic() {
+				const t = tx();
+				const set = (id, v) => {
+					const el = document.getElementById(id);
+					if (el) el.textContent = v;
+				};
+				set("txt-brand", t.brand);
+				set("txt-tag", t.tag);
+				set("txt-live", t.live);
+				["lang-btn", "lang-btn2", "lang-btn3"].forEach((id) => set(id, t.lang));
+				set("txt-dev-lbl", t.devLbl);
+				set("txt-alert-lbl", t.alertLbl);
+				set("txt-clear", t.clear);
+				set("txt-no-alert", t.noAlert);
+				set("txt-sc-lbl", t.scLbl);
+				set("txt-log-title", t.logTitle);
+				set("txt-log-sub", t.logSub);
+				set("txt-log-lbl", t.logLbl);
+				set("txt-tech-title", t.techTitle);
+				set("txt-tech-sub", t.techSub);
+				set("txt-nav-home", t.navHome);
+				set("txt-nav-log", t.navLog);
+				set("txt-nav-tech", t.navTech);
+				set("txt-secure", t.secure);
+				t.sl.forEach((s, i) => set("txt-sl" + i, s));
+				t.sd.forEach((s, i) => set("txt-sd" + i, s));
+				// Bangla class
+				const isBn = lang === "bn";
+				document
+					.querySelectorAll(
+						".dcard-name,.status-word,.trust-lbl,.alert-txt,.alert-hint,.trav-lbl,.sc-btn,.nav-lbl,.what-happened,.action-txt,.modal-section-title,.modal-status-title,.modal-status-sub,.score-box-lbl",
+					)
+					.forEach((el) => {
+						isBn ? el.classList.add("bn") : el.classList.remove("bn");
+					});
+			}
+
+			// ═══════════════════════════════════════
+			// MAIN RENDER
+			// ═══════════════════════════════════════
+			function renderAll() {
+				renderStatic();
+				renderHealth();
+				renderDevices();
+				renderAlerts();
+				renderScenarios();
+				renderTrav("trav-rows-tech");
+				if (currentPage === "log") renderLog();
+			}
+
+			// ═══════════════════════════════════════
+			// MQTT LIVE CONNECTION
+			// ═══════════════════════════════════════
+
+			// Maps Pi device_id → dashboard key
+			const DEV_MAP = {
+				home_camera: "camera",
+				home_router: "router",
+				home_lock: "lock",
+			};
+
+			// Maps Pi pred_class → readable threat name (EN)
+			const THREAT_EN = {
+				"DDoS-SYN_Flood": "SYN Flood",
+				"DDoS-Slowloris": "Slowloris DDoS",
+				"DDoS-UDP_Flood": "UDP Flood",
+				"DDoS-ICMP_Flood": "ICMP Flood",
+				"DDoS-HTTP_Flood": "HTTP Flood",
+				"DDoS-DNS_Flood": "DNS Flood",
+				"Recon-PortScan": "Port Scan",
+				BruteForce: "Brute Force",
+				"Spoofing-ARP_Spoofing": "ARP Spoofing",
+				BenignTraffic: "Normal Traffic",
+			};
+			const THREAT_BN = {
+				"DDoS-SYN_Flood": "SYN বন্যা",
+				"DDoS-Slowloris": "Slowloris",
+				"DDoS-UDP_Flood": "UDP বন্যা",
+				"DDoS-ICMP_Flood": "ICMP বন্যা",
+				"DDoS-HTTP_Flood": "HTTP বন্যা",
+				"DDoS-DNS_Flood": "DNS বন্যা",
+				"Recon-PortScan": "পোর্ট স্ক্যান",
+				BruteForce: "ব্রুট-ফোর্স",
+				"Spoofing-ARP_Spoofing": "ARP স্পুফিং",
+				BenignTraffic: "স্বাভাবিক",
+			};
+
+			function threatName(cls) {
+				return lang === "bn" ? THREAT_BN[cls] || cls : THREAT_EN[cls] || cls;
+			}
+
+			function buildAlertMsg(data, devKey) {
+				const t = tx();
+				const devName = t.devNames[devKey] || devKey;
+				const threat = threatName(data.pred_class);
+				const trustPct = Math.round((data.trust || 0) * 100);
+				if (data.decision === "SAFE")
+					return `${devName}: ${lang === "bn" ? "স্বাভাবিক ট্র্যাফিক — সব ঠিক আছে।" : "normal traffic — all clear."}`;
+				if (data.decision === "WATCH")
+					return `⚠️ ${devName}: ${threat}. ${lang === "bn" ? "ট্রাস্ট" : "Trust"} ${trustPct}%`;
+				return `🚨 ${lang === "bn" ? "বিপদ" : "ALERT"}: ${devName} — ${threat}. ${lang === "bn" ? "ট্রাস্ট" : "Trust"} ${trustPct}%`;
+			}
+
+			function buildAlertDetail(data) {
+				const threat = threatName(data.pred_class);
+				const trustPct = Math.round((data.trust || 0) * 100);
+				return `${lang === "bn" ? "সনাক্ত" : "Detected"}: ${threat} | ${lang === "bn" ? "ট্রাস্ট" : "Trust"}: ${trustPct}% | CWF: ${(data.cwf_prob || 0).toFixed(3)} | Zero-Day: ${(data.zd || 0).toFixed(3)} | ${lang === "bn" ? "কারণ" : "Reason"}: ${data.reason || "—"}`;
+			}
+
+			// Update connection badge
+			function setConnStatus(mode) {
+				// mode: 'live' | 'demo' | 'connecting' | 'error'
+				const badge = document.querySelector(".live-badge");
+				const dot = document.querySelector(".live-dot");
+				const lbl = document.getElementById("txt-live");
+				if (!badge) return;
+				if (mode === "live") {
+					badge.style.background = "var(--safe-dim)";
+					badge.style.borderColor = "var(--safe-mid)";
+					dot.style.background = "var(--safe)";
+					lbl.textContent = lang === "bn" ? "Pi সংযুক্ত" : "Pi Connected";
+				} else if (mode === "connecting") {
+					badge.style.background = "var(--watch-dim)";
+					badge.style.borderColor = "var(--watch-mid)";
+					dot.style.background = "var(--watch)";
+					lbl.textContent = lang === "bn" ? "সংযোগ হচ্ছে" : "Connecting…";
+				} else if (mode === "error") {
+					badge.style.background = "var(--threat-dim)";
+					badge.style.borderColor = "var(--threat-mid)";
+					dot.style.background = "var(--threat)";
+					lbl.textContent = lang === "bn" ? "সংযোগ বিচ্ছিন্ন" : "Disconnected";
+				} else {
+					badge.style.background = "var(--accent-dim)";
+					badge.style.borderColor = "var(--accent)33";
+					dot.style.background = "var(--accent)";
+					lbl.textContent = lang === "bn" ? "ডেমো মোড" : "Demo Mode";
+				}
+			}
+
+			// ── Throttle: only re-render at most once per second per device ──
+			const lastRender = {};
+
+			function handleMqttMessage(payloadStr) {
+				let data;
+				try {
+					data = JSON.parse(payloadStr);
+				} catch (e) {
+					console.warn("Bad MQTT payload:", payloadStr);
+					return;
+				}
+
+				const devKey = DEV_MAP[data.device_id];
+				if (!devKey) {
+					console.log("Unknown device_id:", data.device_id);
+					return;
+				}
+
+				// Update device state
+				devices[devKey] = {
+					status: data.decision || "SAFE",
+					trust: data.trust || 0,
+					cwf: data.cwf_prob || 0,
+					zd: data.zd || 0,
+				};
+
+				// Add to alert feed (WATCH + THREAT only, or first SAFE per device)
+				const prev = lastRender[devKey];
+				const shouldAlert =
+					data.decision !== "SAFE" || (prev && prev !== "SAFE");
+				if (shouldAlert) {
+					const msg = buildAlertMsg(data, devKey);
+					const detail = buildAlertDetail(data);
+					addAlert(data.decision, msg, detail);
+				}
+				lastRender[devKey] = data.decision;
+
+				// Throttle re-renders
+				clearTimeout(window._renderTimer);
+				window._renderTimer = setTimeout(renderAll, 300);
+			}
+
+			// ── Start MQTT if credentials are filled in ──
+			const MQTT_CONFIGURED =
+				!MQTT_HOST.startsWith("YOUR") && !MQTT_USER.startsWith("YOUR");
+
+			if (MQTT_CONFIGURED) {
+				setConnStatus("connecting");
+				// Load Paho MQTT JS via CDN
+				const s = document.createElement("script");
+				s.src =
+					"https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js";
+				s.onload = () => {
+					const clientId =
+						"safenest_dash_" + Math.random().toString(36).slice(2, 8);
+					const wsUrl = `wss://${MQTT_HOST}:${MQTT_PORT}/mqtt`;
+					const client = new Paho.Client(wsUrl, clientId);
+
+					client.onConnectionLost = (r) => {
+						console.warn("MQTT lost:", r.errorMessage);
+						setConnStatus("error");
+						// Auto-reconnect after 5s
+						setTimeout(() => {
+							setConnStatus("connecting");
+							client.connect(connectOpts);
+						}, 5000);
+					};
+
+					client.onMessageArrived = (msg) => {
+						handleMqttMessage(msg.payloadString);
+					};
+
+					const connectOpts = {
+						userName: MQTT_USER,
+						password: MQTT_PASSWORD,
+						useSSL: true,
+						keepAliveInterval: 30,
+						cleanSession: true,
+						onSuccess: () => {
+							console.log("✅ MQTT connected to HiveMQ");
+							setConnStatus("live");
+							client.subscribe(MQTT_TOPIC, { qos: 1 });
+						},
+						onFailure: (e) => {
+							console.error("MQTT connect failed:", e.errorMessage);
+							setConnStatus("error");
+							// Retry in 10s
+							setTimeout(() => client.connect(connectOpts), 10000);
+						},
+					};
+
+					client.connect(connectOpts);
+					window.mqttClient = client; // expose for debugging
+				};
+				s.onerror = () => {
+					console.error("Failed to load Paho MQTT");
+					setConnStatus("error");
+				};
+				document.head.appendChild(s);
+			} else {
+				// Demo mode — simulate Pi data every 6 seconds for showcase
+				setConnStatus("demo");
+				console.log(
+					"ℹ️ MQTT not configured — running in demo mode. Fill in MQTT_HOST, MQTT_USER, MQTT_PASSWORD to go live.",
+				);
+			}
+
+			// ═══════════════════════════════════════
+			// INITIAL RENDER
+			// ═══════════════════════════════════════
+			addAlert(
+				"SAFE",
+				lang === "bn"
+					? "সব ডিভাইস স্বাভাবিক — SafeNest Guard সক্রিয়"
+					: "All devices normal — SafeNest Guard active",
+				"System started at " +
+					now() +
+					". " +
+					(MQTT_CONFIGURED
+						? "Connecting to HiveMQ MQTT…"
+						: "Demo mode — fill in MQTT credentials to go live."),
+			);
+			renderAll();
+		</script>
+	</body>
+</html>
