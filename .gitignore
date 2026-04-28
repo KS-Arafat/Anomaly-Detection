@@ -1,1 +1,4 @@
 # Add libraries that should be ignored by git here
+__pycache__/
+.env
+.venv
