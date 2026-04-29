@@ -11,3 +11,4 @@ requests==2.32.3
 matplotlib==3.10.0
 python-dotenv
 paho-mqtt==1.6.1
+flatbuffers>=24.0.0
