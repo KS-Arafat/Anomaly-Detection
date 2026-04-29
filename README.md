@@ -1,3 +1,10 @@
+<p align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)">
+      <img src="https://raw.githubusercontent.com/KS-Arafat/Anomaly-Detection/main/Poster/Anomaly%20Detection%20of%20IoT%20Devices.png" width="100%">
+    </picture>
+</p>
+
 # CSE 499: Senior Project Design
 
 This project focuses on creating NIDS model using maching learning and deep learning technques that can run on IoT devices which can enhance the security and reliability of Iots even after EOL. This research investigates the trustworthiness of ML-based Network Intrusion Detection Systems (NIDS) when they encounter unseen network traffic patterns. While traditional metrics like accuracy and F1-score suggest high performance, they often mask a model's tendency to be "overconfident" even when making incorrect predictions. By evaluating Model Calibration alongside standard performance metrics, this project aims to quantify the true reliability of NIDS in dynamic, heterogeneous environments. The goal is to move beyond simple detection rates and ensure that when an AI system flags a threat, security analysts can trust the probability score attached to it.
